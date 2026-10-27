@@ -21,6 +21,7 @@
   button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
   .view { display: none; max-width: 560px; margin: 0 auto; min-height: 100%; }
   .view.on { display: flex; flex-direction: column; }
+  #v-chat.on { height: 100vh; height: var(--tg-viewport-stable-height, 100dvh); }
   .top { display: flex; align-items: center; gap: 10px; padding: 16px 16px 10px; }
   .top h1 { flex: 1; font-size: 17px; font-weight: 600; margin: 0; min-width: 0;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -273,9 +274,12 @@
       </div></div>`).join("");
     $("settings").querySelectorAll("button").forEach(btn => btn.onclick = async () => {
       const [, , vals] = OPTIONS.find(o => o[0] === btn.dataset.k);
+      const key = btn.dataset.k, before = data.settings[key];
       haptic();
-      try { data = await api("/api/settings", { settings: { [btn.dataset.k]: vals[+btn.dataset.i][0] } }); online(true); }
-      catch (e) { online(false); }
+      data.settings[key] = vals[+btn.dataset.i][0];
+      renderSettings();  // сразу, не дожидаясь ответа через туннель
+      try { data = await api("/api/settings", { settings: { [key]: data.settings[key] } }); online(true); }
+      catch (e) { data.settings[key] = before; online(false); }
       renderSettings();
     });
   }
