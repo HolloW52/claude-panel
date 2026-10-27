@@ -767,19 +767,21 @@
     $("input").blur();
   }, { passive: true });
   $("chat-scroll").addEventListener("mousedown", e => { if (!e.target.closest("a, .cmd, code, [data-copy]")) $("input").blur(); });
-  // свайп вправо от левого края - назад, как в Telegram: экран едет за пальцем
+  // свайп вправо - назад, как в Telegram на iPhone: с любого места переписки, экран едет за пальцем.
+  // (у самого края iOS/Telegram забирают жест себе, поэтому край не обязателен)
   let edge = null;
   $("v-chat").addEventListener("touchstart", e => {
     const p = e.touches[0];
-    if (!openId || p.clientX > 28 || $("sheet").classList.contains("on")) return;
+    if (!openId || e.touches.length > 1 || $("sheet").classList.contains("on")) return;
+    if (e.target.closest(".code pre, .attachments, textarea")) return;  // там своя горизонтальная прокрутка
     edge = { x: p.clientX, y: p.clientY, t: Date.now(), dx: 0, active: false };
   }, { passive: true });
   $("v-chat").addEventListener("touchmove", e => {
     if (!edge) return;
     const p = e.touches[0], dx = p.clientX - edge.x, dy = p.clientY - edge.y;
     if (!edge.active) {
-      if (Math.abs(dy) > 12 && Math.abs(dy) > dx) { edge = null; return; }  // это вертикальная прокрутка
-      if (dx < 8) return;
+      if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { edge = null; return; }  // это вертикальная прокрутка
+      if (dx < 12 || dx < Math.abs(dy) * 1.5) return;  // ждём явного движения вправо
       edge.active = true;
       $("v-chat").style.transition = $("v-" + tab).style.transition = "none";
     }
