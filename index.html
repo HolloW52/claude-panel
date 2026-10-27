@@ -62,7 +62,7 @@
   /* крупный заголовок iOS */
   .large { flex: none; padding: calc(var(--safe-top) + var(--content-top) + 10px) 16px 8px; }
   .large h1 { margin: 0; font-size: 34px; font-weight: 700; letter-spacing: .3px; line-height: 1.15; }
-  .large .sub { font-size: 15px; color: var(--muted); margin-top: 2px; letter-spacing: -.2px; }
+  .large .sub { font-size: 15px; color: var(--muted); margin-top: 2px; }
   .search { display: flex; align-items: center; gap: 6px; margin: 10px 0 2px; height: 36px; padding: 0 8px;
     border-radius: 10px; background: var(--search); color: var(--muted); }
   .search svg { width: 17px; height: 17px; flex: none; }
@@ -117,7 +117,7 @@
   .tabbar button.on { background: var(--accent-soft); color: var(--accent-text); }
 
   /* сгруппированные списки iOS */
-  h2 { font-size: 13px; font-weight: 400; text-transform: uppercase; color: var(--muted); margin: 24px 16px 7px; letter-spacing: -.1px; }
+  h2 { font-size: 13px; font-weight: 400; text-transform: uppercase; color: var(--muted); margin: 24px 16px 7px; }
   .group { background: var(--card); border-radius: 12px; overflow: hidden; }
   .item { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 16px 0 14px; position: relative; }
   .item + .item::before { content: ""; position: absolute; top: 0; left: 56px; right: 0; border-top: .5px solid var(--line); }
@@ -127,9 +127,9 @@
   .item .val { color: var(--muted); font-size: 17px; }
   .block { padding: 10px 14px 14px 55px; }
   .item + .block, .block + .item { border-top: .5px solid var(--line); margin-left: 0; }
-  .note { font-size: 13px; color: var(--muted); margin: 7px 16px 0; line-height: 1.4; letter-spacing: -.1px; }
+  .note { font-size: 13px; color: var(--muted); margin: 7px 16px 0; line-height: 1.4; }
   .seg { display: flex; background: var(--search); border-radius: 9px; padding: 2px; gap: 2px; }
-  .seg button { flex: 1; font-size: 13px; font-weight: 500; padding: 6px 2px; border-radius: 7px; letter-spacing: -.1px; }
+  .seg button { flex: 1; font-size: 13px; font-weight: 500; padding: 6px 2px; border-radius: 7px; }
   .seg button.on { background: var(--card); box-shadow: 0 2px 6px rgba(0,0,0,.12); }
   .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px 14px; }
   .swatch { border-radius: 12px; padding: 7px 4px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 13px;
@@ -227,7 +227,7 @@
   .bar-row { display: flex; align-items: flex-end; gap: 6px; }
   .field { flex: 1; display: flex; min-height: 36px; border-radius: 18px; background: var(--card); border: .5px solid var(--line); }
   .field textarea { flex: 1; resize: none; border: 0; background: transparent; color: var(--text); padding: 7px 12px;
-    font: 16px/1.3 var(--font); letter-spacing: -.2px; max-height: 130px; outline: none; }
+    font: 16px/1.3 var(--font); max-height: 130px; outline: none; }
   .field textarea::placeholder { color: var(--muted); }
   .round { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex: none; color: var(--muted); }
   .round svg { width: 26px; height: 26px; }
@@ -245,7 +245,7 @@
     border-radius: 14px; overflow: hidden; }
   .sheet .grp + .grp { margin-top: 8px; }
   .sheet .title { padding: 13px 16px; text-align: center; font-size: 13px; color: var(--muted); border-bottom: .5px solid var(--line); }
-  .sheet button { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 16px; font-size: 19px; color: var(--accent-text); letter-spacing: -.3px; }
+  .sheet button { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 16px; font-size: 19px; color: var(--accent-text); }
   .sheet button + button { border-top: .5px solid var(--line); }
   .sheet button.danger { color: #d9534f; }
   .sheet .cancel { font-weight: 600; }
