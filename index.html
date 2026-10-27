@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Claude Code</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: #f3f2f0; --card: #fbfbfa; --line: #e4e2df; --text: #3b3a3f; --muted: #8f8c95;
+    --accent: #b7b3d4; --accent-soft: #ebe9f4; --sage: #a9c4b1; --sand: #d9cfc1; --sleep: #cfccc8;
+  }
+  :root[data-theme="dark"] {
+    --bg: #1d1d20; --card: #26262a; --line: #33333a; --text: #e6e5ea; --muted: #8e8b96;
+    --accent: #9d98c4; --accent-soft: #2f2e3a; --sage: #8fae98; --sand: #b3a894; --sleep: #55535a;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 520px; margin: 0 auto; padding: 18px 16px 96px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 2px 18px; }
+  h1 { font-size: 17px; font-weight: 600; margin: 0; letter-spacing: .2px; }
+  .stamp { font-size: 12px; color: var(--muted); }
+  h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px;
+    color: var(--muted); margin: 22px 4px 8px; }
+  .list { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .row { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-top: 1px solid var(--line);
+    cursor: pointer; transition: background .15s; }
+  .row:first-child { border-top: 0; }
+  .row:active { background: var(--accent-soft); }
+  .row.sel { background: var(--accent-soft); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--sleep); }
+  .dot.work { background: var(--sage); animation: pulse 1.6s ease-in-out infinite; }
+  .dot.idle { background: var(--accent); }
+  @keyframes pulse { 50% { opacity: .35; } }
+  .name { flex: 1; min-width: 0; }
+  .name b { display: block; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .name span { font-size: 12px; color: var(--muted); }
+  .check { color: var(--accent); font-size: 15px; visibility: hidden; }
+  .row.sel .check { visibility: visible; }
+  .empty { padding: 18px 14px; color: var(--muted); text-align: center; }
+  .opt { padding: 12px 14px; border-top: 1px solid var(--line); }
+  .opt:first-child { border-top: 0; }
+  .opt label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .seg { display: flex; background: var(--bg); border-radius: 10px; padding: 3px; gap: 3px; }
+  .seg button { flex: 1; border: 0; background: transparent; color: var(--text); font: inherit; font-size: 13px;
+    padding: 7px 4px; border-radius: 8px; cursor: pointer; transition: background .15s, color .15s; }
+  .seg button.on { background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.08); font-weight: 500; }
+  .note { font-size: 12px; color: var(--muted); margin: 10px 4px 0; }
+  .save { position: fixed; left: 16px; right: 16px; bottom: 16px; max-width: 488px; margin: 0 auto; display: none;
+    border: 0; border-radius: 12px; padding: 13px; font: inherit; font-weight: 600; cursor: pointer;
+    background: var(--accent); color: #fff; }
+  body.dirty .save { display: block; }
+  body.tg .save { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <header><h1>Claude Code</h1><span class="stamp" id="stamp"></span></header>
+
+  <h2>Сессии</h2>
+  <div class="list" id="sessions"></div>
+  <p class="note">● пишет · ● открыта · ● спит — нажми, чтобы переключиться</p>
+
+  <h2>Уведомления</h2>
+  <div class="list" id="settings"></div>
+  <p class="note">Режим «VS Code» — тишина в Telegram, пока работаешь за компьютером.</p>
+</main>
+<button class="save" id="save">Сохранить</button>
+
+<script>
+  const tg = window.Telegram && Telegram.WebApp;
+  const OPTIONS = [
+    ["mode", "Режим работы", [["telegram", "Telegram"], ["vscode", "VS Code"]]],
+    ["progress", "Текущая сессия", [[false, "Только итог"], [true, "Весь ход"]]],
+    ["others", "Другие сессии", [["off", "Молчат"], ["short", "«Готово»"], ["full", "Итог"]]],
+    ["questions", "Вопросы Claude", [[true, "С кнопками"], [false, "Только VS Code"]]],
+  ];
+  const DEFAULTS = { mode: "telegram", progress: false, others: "short", questions: true };
+
+  function readState() {
+    try {
+      let b64 = location.hash.slice(1).replace(/-/g, "+").replace(/_/g, "/");
+      b64 += "=".repeat((4 - b64.length % 4) % 4);
+      const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      return JSON.parse(new TextDecoder().decode(bytes));
+    } catch (e) { return { s: [], sel: null, cfg: DEFAULTS, ts: 0 }; }
+  }
+
+  const state = readState();
+  const saved = Object.assign({}, DEFAULTS, state.cfg);
+  const cfg = Object.assign({}, saved);
+  const $ = id => document.getElementById(id);
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  function send(payload) {
+    if (tg && tg.sendData) tg.sendData(JSON.stringify(payload));  // закрывает панель, бот получит web_app_data
+    else console.log("sendData", payload);
+  }
+
+  function haptic() { try { tg.HapticFeedback.selectionChanged(); } catch (e) {} }
+
+  function renderSessions() {
+    const box = $("sessions");
+    if (!state.s.length) { box.innerHTML = '<div class="empty">Нет открытых вкладок Claude</div>'; return; }
+    const label = { work: "пишет", idle: "открыта", sleep: "спит" };
+    box.innerHTML = state.s.map(s => `
+      <div class="row${s.id === state.sel ? " sel" : ""}" data-id="${esc(s.id)}">
+        <i class="dot ${esc(s.st)}"></i>
+        <div class="name"><b>${esc(s.t)}</b><span>#${esc(s.id)} · ${label[s.st] || ""}</span></div>
+        <span class="check">✓</span>
+      </div>`).join("");
+    box.querySelectorAll(".row").forEach(row => row.onclick = () => {
+      haptic(); send({ a: "use", id: row.dataset.id });
+    });
+  }
+
+  function dirty() { return OPTIONS.some(([k]) => cfg[k] !== saved[k]); }
+
+  function syncSave() {
+    document.body.classList.toggle("dirty", dirty());
+    if (!tg || !tg.MainButton) return;
+    if (dirty()) tg.MainButton.setText("Сохранить").show(); else tg.MainButton.hide();
+  }
+
+  function renderSettings() {
+    $("settings").innerHTML = OPTIONS.map(([key, title, vals]) => `
+      <div class="opt"><label>${title}</label><div class="seg">
+        ${vals.map(([v, t], i) => `<button data-k="${key}" data-i="${i}" class="${cfg[key] === v ? "on" : ""}">${t}</button>`).join("")}
+      </div></div>`).join("");
+    $("settings").querySelectorAll("button").forEach(btn => btn.onclick = () => {
+      const [, , vals] = OPTIONS.find(o => o[0] === btn.dataset.k);
+      cfg[btn.dataset.k] = vals[+btn.dataset.i][0];
+      haptic(); renderSettings(); syncSave();
+    });
+  }
+
+  function save() { send({ a: "cfg", cfg }); }
+
+  function applyTheme() {
+    const dark = tg ? tg.colorScheme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    const bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
+    if (tg) { try { tg.setHeaderColor(bg); tg.setBackgroundColor(bg); } catch (e) {} }
+  }
+
+  $("stamp").textContent = state.ts
+    ? "обновлено " + new Date(state.ts * 1000).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }) : "";
+  $("save").onclick = save;
+  const inTelegram = !!(tg && tg.platform && tg.platform !== "unknown");
+  applyTheme();
+  if (inTelegram) {
+    document.body.classList.add("tg");
+    tg.ready(); tg.expand();
+    const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
+    tg.MainButton.setParams({ color: accent, text_color: "#ffffff" });
+    tg.MainButton.onClick(save);
+    tg.onEvent("themeChanged", applyTheme);
+  }
+  renderSessions(); renderSettings(); syncSave();
+</script>
+</body>
+</html>
