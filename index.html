@@ -209,6 +209,13 @@
   .code-head span { flex: 1; }
   .code-head button { font-size: 13px; font-weight: 400; color: var(--accent-text); opacity: .8; }
   .code pre { margin: 0; padding: 3px 9px 7px; overflow-x: auto; font: 13.5px/1.4 var(--mono); white-space: pre; letter-spacing: 0; }
+  .msg .tick { display: inline-block; width: 15px; height: 11px; margin-left: 3px; vertical-align: -1px; }
+  .msg .tick svg { width: 100%; height: 100%; }
+  .msg.failed { opacity: .75; cursor: pointer; }
+  .msg .err { display: inline-grid; place-items: center; width: 14px; height: 14px; margin-left: 4px; border-radius: 50%;
+    background: #d9534f; color: #fff; font-size: 10px; font-weight: 700; vertical-align: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .msg .tick .clock { animation: spin 1.6s linear infinite; transform-origin: 50% 50%; }
   .pending { align-self: flex-end; font-size: 12px; color: var(--muted); margin: 2px 12px 4px; }
 
   /* поле ввода как в Telegram iOS */
@@ -357,7 +364,7 @@
                   [/отч[её]т|записк|doc|report/i, "📄"], [/funpay|прода|магаз|shop/i, "🛒"], [/dota/i, "⚔️"],
                   [/дизайн|design|ui/i, "🎨"], [/код|code|скрипт|script/i, "💻"], [/музык|music|lofi/i, "🎧"]];
   const MAX_FILE = 20 * 1024 * 1024;
-  let data = null, tab = "chats", openId = null, lastHistory = "", files = [], query = "";
+  let data = null, tab = "chats", openId = null, lastHistory = "", files = [], query = "", historyItems = [], outbox = [];
   const $ = id => document.getElementById(id);
   const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
   const seen = store("seen") || {};
@@ -450,7 +457,7 @@
   }
   const canBack = () => tg && tg.isVersionAtLeast && tg.isVersionAtLeast("6.1");
   function openChat(id) {
-    openId = id; lastHistory = "";
+    openId = id; lastHistory = ""; historyItems = [];
     $("chat").innerHTML = '<div class="empty">Загрузка…</div>';
     $("v-chat").classList.remove("push"); $("v-" + tab).classList.add("under");
     $("tabbar").classList.add("hide");
@@ -557,9 +564,18 @@
       online(true);
       const key = JSON.stringify(res.items);
       if (key === lastHistory) return;
-      lastHistory = key;
+      lastHistory = key; historyItems = res.items;
+      // сообщение появилось в истории сессии - убираем его из очереди отправки
+      outbox = outbox.filter(o => o.chat !== openId || o.state !== "sent" ||
+        !res.items.some(m => m.r === "user" && o.match && m.x.includes(o.match)) && Date.now() - o.at < 180000);
+      renderChat(scroll);
+    } catch (e) { online(false); }
+  }
+
+  function renderChat(scroll) {
+    {
       const sc = $("chat-scroll"), atBottom = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 120;
-      const items = res.items;
+      const items = historyItems;
       let lastDay = "", html = "";
       items.forEach((m, i) => {
         const d = m.ts ? new Date(m.ts) : null, day = d ? d.toDateString() : "";
@@ -569,9 +585,18 @@
         const cls = [dir, samePrev ? "cont" : "gap", sameNext ? "mid" : "tail"].join(" ");
         html += `<div class="msg ${cls}">${md(m.x)}<span class="time">${d ? hhmm(d) : ""}</span></div>`;
       });
+      html += outbox.filter(o => o.chat === openId).map(outboxHtml).join("");
       $("chat").innerHTML = html || '<div class="empty">Переписки пока нет</div>';
       if (scroll || atBottom) sc.scrollTop = sc.scrollHeight;
-    } catch (e) { online(false); }
+    }
+  }
+
+  const CLOCK = '<svg viewBox="0 0 15 11"><g class="clock"><circle cx="7.5" cy="5.5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7.5 3v2.7l1.8 1" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></g></svg>';
+  const CHECK = '<svg viewBox="0 0 15 11"><path d="M2 6l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function outboxHtml(o) {
+    const mark = o.state === "sending" ? `<span class="tick">${CLOCK}</span>` : o.state === "sent" ? `<span class="tick">${CHECK}</span>` : '<span class="err">!</span>';
+    const note = o.state === "failed" ? "не отправлено — нажми, чтобы повторить" : o.state === "sent" && o.status !== "delivered" ? SENT[o.status] || "" : "";
+    return `<div class="msg out gap tail${o.state === "failed" ? " failed" : ""}" data-retry="${o.state === "failed" ? o.key : ""}">${o.html}<span class="time">${hhmm(new Date(o.at))}${mark}</span></div>${note ? `<div class="pending">${note}</div>` : ""}`;
   }
 
   // ---------- вложения и отправка ----------
@@ -594,22 +619,30 @@
   async function sendMessage() {
     const input = $("input"), text = input.value.trim(), batch = files.slice();
     if ((!text && !batch.length) || !openId) return;
-    $("send").disabled = true;
+    const bubble = batch.map(f => f.url ? `<img class="thumb" src="${f.url}" alt="">` : `<div class="file"><i>📄</i>${esc(f.file.name)}</div>`).join("");
+    const o = { key: String(Date.now()) + Math.random(), chat: openId, text, batch, at: Date.now(), state: "sending",
+                html: bubble + (text ? md(text) : ""), match: text ? text.slice(0, 40) : (batch[0] ? batch[0].file.name.slice(0, 40) : "") };
+    outbox.push(o);
+    input.value = ""; files = []; autosize(); renderAttachments();  // поле сразу свободно, как в Telegram
+    renderChat(true); haptic();
+    deliverOutbox(o);
+  }
+
+  async function deliverOutbox(o) {
+    o.state = "sending"; renderChat(false);
     try {
-      let status = null, bubble = "";
-      for (let i = 0; i < batch.length; i++) {
-        const f = batch[i], caption = i === batch.length - 1 ? text : "";
-        const res = await api("/api/upload", { id: openId, name: f.file.name, mime: f.file.type, data: await readB64(f.file), caption });
-        status = res.status;
-        bubble += f.url ? `<img class="thumb" src="${f.url}" alt="">` : `<div class="file"><i>📄</i>${esc(f.file.name)}</div>`;
+      let status = null;
+      for (let i = 0; i < o.batch.length; i++) {
+        const f = o.batch[i], caption = i === o.batch.length - 1 ? o.text : "";
+        status = (await api("/api/upload", { id: o.chat, name: f.file.name, mime: f.file.type, data: await readB64(f.file), caption })).status;
       }
-      if (!batch.length) status = (await api("/api/send", { id: openId, text })).status;
-      input.value = ""; files = []; autosize(); renderAttachments();
-      $("chat").insertAdjacentHTML("beforeend", `<div class="msg out gap tail">${bubble}${text ? md(text) : ""}<span class="time">${hhmm(new Date())}</span></div><div class="pending">${SENT[status] || status}</div>`);
-      $("chat-scroll").scrollTop = $("chat-scroll").scrollHeight;
-      haptic("success");
-    } catch (e) { online(false); toast(String(e.message) === "413" ? "Файл слишком большой" : "Не отправлено — нет связи"); haptic("error"); }
-    syncSend();
+      if (!o.batch.length) status = (await api("/api/send", { id: o.chat, text: o.text })).status;
+      o.state = "sent"; o.status = status; online(true); haptic("success");
+    } catch (e) {
+      o.state = "failed"; online(false); haptic("error");
+      if (String(e.message) === "413") toast("Файл слишком большой");
+    }
+    if (openId === o.chat) renderChat(false);
   }
 
   // ---------- меню чата (долгое нажатие) ----------
@@ -714,6 +747,8 @@
       catch (er) { data.settings[key] = before; online(false); toast("Не сохранилось — нет связи"); }
       renderSettings(); return;
     }
+    const retry = t.closest("[data-retry]");
+    if (retry && retry.dataset.retry) { const o = outbox.find(x => x.key === retry.dataset.retry); if (o) { haptic(); deliverOutbox(o); } return; }
     const rm = t.closest("[data-rm]"); if (rm) { files.splice(+rm.dataset.rm, 1); renderAttachments(); return; }
     const link = t.closest("#chat a[href]");
     if (link) {  // ссылки открываем как Telegram: t.me - внутри Telegram, остальное - в браузере
