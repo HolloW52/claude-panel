@@ -227,7 +227,7 @@
       .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
       .replace(/~~(.+?)~~/g, "<s>$1</s>")
       .replace(/(^|[^\w*])\*(?!\s)([^*\n]+?)\*(?![\w*])/g, "$1<i>$2</i>");
-    return text.split(/\n{2,}/).map(p => "<p>" + p.trim().replace(/\n/g, "<br>") + "</p>").join("")
+    return text.split(/\n{2,}/).filter(p => p.trim()).map(p => "<p>" + p.trim().replace(/\n/g, "<br>") + "</p>").join("")
       .replace(/<p>(\u0000\d+\u0000)<\/p>/g, "$1")
       .replace(/\u0000(\d+)\u0000/g, (_, i) => keep[+i]);
   }
@@ -279,7 +279,7 @@
       return `<div class="row tap" data-id="${esc(s.id)}">${avatar(s)}
         <div class="grow"><div class="line1"><b>${esc(s.t)}</b><time>${s.at ? when(s.at) : ""}</time></div>
         <div class="line2"><span>#${esc(s.id)} · ${STATUS[s.st] || ""}</span>
-        ${s.id === data.selected ? '<i class="chip">основная</i>' : ""}${fresh ? '<i class="badge"></i>' : ""}</div></div></div>`;
+        ${s.id === data.selected ? '<span class="chip">основная</span>' : ""}${fresh ? '<span class="badge"></span>' : ""}</div></div></div>`;
     }).join("");
     box.querySelectorAll(".row").forEach(r => r.onclick = () => { haptic(); openChat(r.dataset.id); });
     $("mode-note").textContent = "Нажми сессию, чтобы открыть переписку и написать ей.";
