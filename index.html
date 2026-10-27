@@ -195,7 +195,9 @@
   .msg p { margin: 0 0 6px; } .msg p:last-of-type { margin-bottom: 0; }
   .msg b { font-weight: 600; }
   .msg a { color: var(--accent-text); text-decoration: none; }
-  .msg code { font: .86em var(--mono); color: var(--accent-text); letter-spacing: 0; }
+  .msg code { font: .86em var(--mono); color: var(--accent-text); letter-spacing: 0; cursor: pointer; }
+  .msg .cmd { color: var(--accent-text); cursor: pointer; }
+  .msg a { word-break: break-all; }
   .msg blockquote { margin: 3px 0 6px; padding: 3px 8px 3px 9px; border-left: 3px solid var(--quote); border-radius: 4px;
     background: var(--code-bg); font-size: .94em; }
   .msg .file { display: flex; align-items: center; gap: 10px; font-size: 15px; margin: 2px 0 4px; }
@@ -394,7 +396,9 @@
     });
     text = text.replace(/`([^`\n]+)`/g, (_, c) => stash("<code>" + esc(c) + "</code>"));
     text = esc(text)
-      .replace(/\[([^\]\n]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+      .replace(/\[([^\]\n]+)\]\((https?:[^)\s]+)\)/g, (_, t, u) => stash(`<a href="${u}">${t}</a>`))
+      .replace(/\bhttps?:\/\/[^\s<>"]+[^\s<>".,;:!?)\]]/g, u => stash(`<a href="${u}">${u}</a>`))  // голые ссылки
+      .replace(/(^|[\s(])\/([a-zA-Z][\w-]{0,31})(?![\w\/]|\.\w)/g, (_, p, c) => p + stash(`<span class="cmd" data-cmd="/${c}">/${c}</span>`))
       .replace(/^#{1,6}\s+(.+)$/gm, "<b>$1</b>")
       .replace(/^\s*-{3,}\s*$/gm, "")
       .replace(/^(?:&gt;\s?(.*)(?:\n|$))+/gm, m => stash("<blockquote>" + m.replace(/^&gt;\s?/gm, "").trim().replace(/\n/g, "<br>") + "</blockquote>"))
@@ -711,6 +715,24 @@
       renderSettings(); return;
     }
     const rm = t.closest("[data-rm]"); if (rm) { files.splice(+rm.dataset.rm, 1); renderAttachments(); return; }
+    const link = t.closest("#chat a[href]");
+    if (link) {  // ссылки открываем как Telegram: t.me - внутри Telegram, остальное - в браузере
+      e.preventDefault();
+      const url = link.getAttribute("href");
+      try { /^https?:\/\/t\.me\//.test(url) ? tg.openTelegramLink(url) : tg.openLink(url); } catch (er) { window.open(url, "_blank"); }
+      return;
+    }
+    const cmd = t.closest("[data-cmd]");
+    if (cmd) {  // команда подставляется в поле - отправка одним нажатием
+      haptic(); const input = $("input");
+      input.value = (input.value.trim() ? input.value.trimEnd() + " " : "") + cmd.dataset.cmd + " ";
+      autosize(); syncSend(); input.focus(); return;
+    }
+    const inline = t.closest("#chat code");
+    if (inline && !inline.closest(".code")) {  // тап по моноширинному тексту копирует его, как в Telegram
+      (navigator.clipboard ? navigator.clipboard.writeText(inline.innerText) : Promise.reject()).then(() => { toast("Скопировано"); haptic("success"); }, () => {});
+      return;
+    }
     const copy = t.closest("[data-copy]");
     if (copy) {
       const pre = copy.closest(".code").querySelector("pre");
@@ -735,8 +757,23 @@
   $("input").addEventListener("paste", e => { const f = [...(e.clipboardData || {}).files || []]; if (f.length) { e.preventDefault(); addFiles(f); } });
   $("send").onclick = sendMessage;
   // клавиатура закрывается тапом по переписке или прокруткой
-  $("chat-scroll").addEventListener("touchstart", () => $("input").blur(), { passive: true });
-  $("chat-scroll").addEventListener("mousedown", () => $("input").blur());
+  // как в Telegram: прокрутка НЕ закрывает клавиатуру, а одиночный тап по переписке - закрывает
+  let tapStart = null;
+  $("chat-scroll").addEventListener("touchstart", e => { const p = e.touches[0]; tapStart = [p.clientX, p.clientY, Date.now()]; }, { passive: true });
+  $("chat-scroll").addEventListener("touchend", e => {
+    const p = e.changedTouches[0], s = tapStart; tapStart = null;
+    if (!s || Math.hypot(p.clientX - s[0], p.clientY - s[1]) > 10 || Date.now() - s[2] > 400) return;  // это прокрутка
+    if (e.target.closest("a, .cmd, code, [data-copy]")) return;  // тап по ссылке/команде/коду
+    $("input").blur();
+  }, { passive: true });
+  $("chat-scroll").addEventListener("mousedown", e => { if (!e.target.closest("a, .cmd, code, [data-copy]")) $("input").blur(); });
+  // последнее сообщение остаётся видно, когда клавиатура сжимает экран
+  let stick = true;
+  $("chat-scroll").addEventListener("scroll", () => { const sc = $("chat-scroll"); stick = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 60; }, { passive: true });
+  const keepBottom = () => { if (stick && openId) $("chat-scroll").scrollTop = $("chat-scroll").scrollHeight; };
+  new ResizeObserver(keepBottom).observe($("chat-scroll"));
+  if (window.visualViewport) visualViewport.addEventListener("resize", keepBottom);
+  if (tg) try { tg.onEvent("viewportChanged", keepBottom); } catch (e) {}
   ["chats-scroll"].forEach(id => $(id).addEventListener("touchstart", e => { if (!e.target.closest("#q")) $("q").blur(); }, { passive: true }));
   // зум выключен: щипок и жесты iOS
   ["gesturestart", "gesturechange"].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
