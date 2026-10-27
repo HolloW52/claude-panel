@@ -7,20 +7,30 @@
 <link rel="icon" href="data:,">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-  :root {
+  :root, [data-theme="light"] {
     --bg: #f2f1ef; --card: #fbfbfa; --line: #e5e3df; --text: #2f2e33; --muted: #8b8891;
     --accent: #9f9ac8; --accent-text: #6f69a3; --accent-soft: #eceaf5; --sage: #9cbca5; --sleep: #cdc9c4;
     --mine: #e9e7f4; --code-bg: #f0eff3; --code-head: #e6e4ee; --quote: #b5b0d6;
+    --glass: rgba(251, 251, 250, .78); --glass-line: rgba(0, 0, 0, .06); --shadow: 0 8px 28px rgba(40, 36, 60, .12);
+  }
+  [data-theme="dark"] {
+    --bg: #1c1c1f; --card: #26262a; --line: #323238; --text: #e8e7ec; --muted: #8d8a95;
+    --accent: #958fc2; --accent-text: #b4afe0; --accent-soft: #2e2d38; --sage: #8aab94; --sleep: #504e55;
+    --mine: #343243; --code-bg: #1f1f24; --code-head: #2b2a33; --quote: #7d78a8;
+    --glass: rgba(38, 38, 42, .78); --glass-line: rgba(255, 255, 255, .07); --shadow: 0 8px 28px rgba(0, 0, 0, .35);
+  }
+  [data-theme="black"] {
+    --bg: #000; --card: #121214; --line: #222226; --text: #ecebf0; --muted: #85828c;
+    --accent: #8e88bf; --accent-text: #b2adde; --accent-soft: #1c1b24; --sage: #82a38c; --sleep: #3f3d44;
+    --mine: #25233a; --code-bg: #0b0b0d; --code-head: #19181f; --quote: #6f6a99;
+    --glass: rgba(20, 20, 23, .8); --glass-line: rgba(255, 255, 255, .08); --shadow: 0 8px 28px rgba(0, 0, 0, .6);
+  }
+  :root {
     --safe-top: max(var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px));
     --safe-bottom: max(var(--tg-safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px));
     --content-top: var(--tg-content-safe-area-inset-top, 0px);
     --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, "Segoe UI", "Open Sans", "Helvetica Neue", sans-serif;
     --mono: "SF Mono", "JetBrains Mono", "Roboto Mono", Menlo, Consolas, monospace;
-  }
-  :root[data-theme="dark"] {
-    --bg: #1c1c1f; --card: #26262a; --line: #323238; --text: #e8e7ec; --muted: #8d8a95;
-    --accent: #958fc2; --accent-text: #b4afe0; --accent-soft: #2e2d38; --sage: #8aab94; --sleep: #504e55;
-    --mine: #343243; --code-bg: #1f1f24; --code-head: #2b2a33; --quote: #7d78a8;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
@@ -29,24 +39,24 @@
   button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; padding: 0; }
   .app { position: fixed; inset: 0; height: var(--tg-viewport-height, 100%); overflow: hidden; }
   .view { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--bg);
-    transition: transform .28s cubic-bezier(.2,.8,.2,1), opacity .2s; }
-  .view.hidden-right { transform: translateX(100%); pointer-events: none; }
-  .view.hidden-left { transform: translateX(-22%); opacity: 0; pointer-events: none; }
+    transition: transform .3s cubic-bezier(.2,.8,.2,1), opacity .22s; }
+  .view.off { opacity: 0; pointer-events: none; transform: translateY(8px); }
+  .view.push { transform: translateX(100%); pointer-events: none; }
+  .view.under { transform: translateX(-22%); opacity: 0; pointer-events: none; }
 
-  /* шапка */
   .top { flex: none; display: flex; align-items: center; gap: 6px; min-height: 52px;
-    padding: calc(var(--safe-top) + var(--content-top) + 6px) 10px 6px; background: var(--bg); }
-  .top h1 { flex: 1; margin: 0 6px; min-width: 0; font-size: 18px; font-weight: 600; letter-spacing: -.1px;
+    padding: calc(var(--safe-top) + var(--content-top) + 6px) 12px 6px; }
+  .top h1 { flex: 1; margin: 0 4px; min-width: 0; font-size: 22px; font-weight: 700; letter-spacing: -.3px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .top .sub { display: block; font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 1px; }
+  .top.small h1 { font-size: 17px; font-weight: 600; letter-spacing: -.1px; }
+  .top .sub { display: block; font-size: 13px; font-weight: 400; color: var(--muted); letter-spacing: 0; }
   .icon { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; color: var(--muted); flex: none; }
   .icon:active { background: var(--accent-soft); }
   .icon svg { width: 22px; height: 22px; }
   .scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
-  .pad { padding: 4px 14px calc(var(--safe-bottom) + 20px); }
-  h2 { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 14px 6px 8px; }
-
-  /* список сессий */
+  .pad { padding: 4px 14px calc(var(--safe-bottom) + 104px); }
+  h2 { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 18px 6px 8px; }
+  h2:first-child { margin-top: 6px; }
   .list { background: var(--card); border-radius: 16px; overflow: hidden; }
   .row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; position: relative; }
   .row + .row::before { content: ""; position: absolute; top: 0; left: 70px; right: 0; border-top: 1px solid var(--line); }
@@ -64,8 +74,8 @@
   .line1 b { flex: 1; min-width: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .line1 time { font-size: 13px; color: var(--muted); flex: none; }
   .line2 { display: flex; align-items: center; gap: 8px; margin-top: 2px; font-size: 14px; color: var(--muted); }
-  .line2 span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .badge { min-width: 9px; height: 9px; border-radius: 5px; background: var(--accent); flex: none; }
+  .line2 span:first-child { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .badge { width: 9px; height: 9px; border-radius: 5px; background: var(--accent); flex: none; }
   .chip { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-text); flex: none; }
   .note { font-size: 13px; color: var(--muted); margin: 10px 6px 0; line-height: 1.45; }
   .banner { margin: 0 14px 8px; padding: 10px 14px; border-radius: 14px; font-size: 14px;
@@ -76,21 +86,50 @@
     background-size: 200% 100%; animation: shimmer 1.2s infinite; }
   @keyframes shimmer { to { background-position: -200% 0; } }
 
+  /* стеклянная «таблетка» вкладок, как в Telegram на iPhone */
+  .tabbar { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 12px); transform: translateX(-50%); z-index: 10;
+    display: flex; gap: 2px; padding: 5px; border-radius: 30px; background: var(--glass); border: 1px solid var(--glass-line);
+    -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6); box-shadow: var(--shadow);
+    transition: transform .3s cubic-bezier(.2,.8,.2,1), opacity .2s; }
+  .tabbar.hide { transform: translate(-50%, 140%); opacity: 0; }
+  .tabbar button { width: 86px; padding: 6px 0 5px; border-radius: 24px; display: flex; flex-direction: column; align-items: center;
+    gap: 2px; font-size: 11px; font-weight: 500; color: var(--muted); transition: background .2s, color .2s; }
+  .tabbar button svg { width: 24px; height: 24px; }
+  .tabbar button.on { background: var(--accent-soft); color: var(--accent-text); }
+
+  /* статусы */
+  .usage { background: var(--card); border-radius: 16px; padding: 14px; display: grid; gap: 14px; }
+  .meter .head { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 7px; }
+  .meter .head b { font-weight: 600; }
+  .bar { height: 8px; border-radius: 4px; background: var(--accent-soft); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 4px; background: var(--accent); transition: width .5s; }
+  .bar.warn i { background: #d4ab8c; } .bar.full i { background: #cf8f8f; }
+  .meter .sub { font-size: 13px; color: var(--muted); margin-top: 5px; }
+  .scard { background: var(--card); border-radius: 16px; padding: 12px 14px; margin-bottom: 8px; }
+  .scard .line1 { align-items: center; }
+  .scard .state { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .scard .last { font-size: 14px; color: var(--muted); margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden; }
+  .actions { display: flex; gap: 8px; margin-top: 10px; }
+  .actions button { flex: 1; font-size: 14px; padding: 8px; border-radius: 12px; background: var(--accent-soft); color: var(--accent-text); }
+
   /* переписка */
   .chat { padding: 6px 10px 10px; display: flex; flex-direction: column; gap: 4px; }
   .day { align-self: center; font-size: 13px; color: var(--muted); background: var(--accent-soft);
     padding: 3px 10px; border-radius: 12px; margin: 10px 0 6px; }
-  .msg { position: relative; max-width: min(88%, 620px); padding: 7px 11px 6px; border-radius: 16px; background: var(--card);
+  .msg { position: relative; max-width: min(88%, 620px); padding: 7px 11px 6px; border-radius: 18px; background: var(--card);
     font-size: 16px; line-height: 1.38; word-wrap: break-word; overflow-wrap: anywhere; align-self: flex-start;
     border-bottom-left-radius: 6px; user-select: text; -webkit-user-select: text; }
-  .msg.user { align-self: flex-end; background: var(--mine); border-bottom-left-radius: 16px; border-bottom-right-radius: 6px; }
+  .msg.user { align-self: flex-end; background: var(--mine); border-bottom-left-radius: 18px; border-bottom-right-radius: 6px; }
   .msg + .msg.user, .msg.user + .msg:not(.user) { margin-top: 6px; }
   .msg .time { float: right; font-size: 12px; color: var(--muted); margin: 8px 0 -3px 10px; line-height: 1; }
   .msg p { margin: 0 0 7px; } .msg p:last-of-type { margin-bottom: 0; }
-  .msg b, .msg strong { font-weight: 600; }
+  .msg b { font-weight: 600; }
   .msg a { color: var(--accent-text); text-decoration: none; }
   .msg code { font: .88em var(--mono); color: var(--accent-text); background: var(--code-bg); padding: 1px 5px; border-radius: 5px; }
   .msg blockquote { margin: 4px 0 7px; padding: 2px 0 2px 10px; border-left: 3px solid var(--quote); border-radius: 2px; color: var(--muted); }
+  .msg .file { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .msg img.thumb { display: block; max-width: 100%; max-height: 260px; border-radius: 12px; margin-bottom: 4px; }
   .code { margin: 6px 0 8px; border-radius: 10px; overflow: hidden; background: var(--code-bg); border-left: 3px solid var(--quote); }
   .code-head { display: flex; align-items: center; padding: 5px 10px; background: var(--code-head);
     font-size: 13px; font-weight: 500; color: var(--accent-text); }
@@ -98,25 +137,42 @@
   .code-head button { font-size: 13px; color: var(--muted); }
   .code pre { margin: 0; padding: 8px 10px; overflow-x: auto; font: 13.5px/1.45 var(--mono); white-space: pre; color: var(--text); }
   .pending { align-self: flex-end; font-size: 13px; color: var(--muted); margin: 1px 4px 4px; }
-  .composer { flex: none; display: flex; align-items: flex-end; gap: 8px; background: var(--bg);
-    padding: 8px 10px calc(var(--safe-bottom) + 8px); border-top: 1px solid var(--line); }
-  .composer textarea { flex: 1; resize: none; border: 0; background: var(--card); color: var(--text); border-radius: 20px;
-    padding: 10px 16px; font: 16px/1.35 var(--font); max-height: 150px; outline: none; }
-  .composer textarea::placeholder { color: var(--muted); }
-  .send { width: 42px; height: 42px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center;
-    flex: none; transition: opacity .15s, transform .15s; }
-  .send:disabled { opacity: 0; transform: scale(.6); pointer-events: none; }
-  .send svg { width: 20px; height: 20px; }
-  .make-main { font-size: 13px; padding: 6px 11px; border-radius: 14px; background: var(--accent-soft); color: var(--accent-text); flex: none; }
+
+  /* поле ввода - тоже «таблетка» */
+  .composer { flex: none; padding: 6px 10px calc(var(--safe-bottom) + 10px); }
+  .attachments { display: flex; gap: 8px; overflow-x: auto; padding: 0 2px 8px; }
+  .attachments:empty { display: none; }
+  .att { position: relative; flex: none; height: 64px; min-width: 64px; max-width: 180px; border-radius: 14px; background: var(--card);
+    display: flex; align-items: center; gap: 8px; padding: 0 12px; font-size: 13px; overflow: hidden; }
+  .att img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .att span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .att .x { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,.55);
+    color: #fff; font-size: 13px; line-height: 20px; text-align: center; }
+  .pill { display: flex; align-items: flex-end; gap: 4px; padding: 4px; border-radius: 26px; background: var(--glass);
+    border: 1px solid var(--glass-line); -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6);
+    box-shadow: var(--shadow); }
+  .pill textarea { flex: 1; resize: none; border: 0; background: transparent; color: var(--text); padding: 9px 4px;
+    font: 16px/1.35 var(--font); max-height: 150px; outline: none; }
+  .pill textarea::placeholder { color: var(--muted); }
+  .round { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; flex: none; color: var(--muted); }
+  .round:active { background: var(--accent-soft); }
+  .round svg { width: 22px; height: 22px; }
+  .send { background: var(--accent); color: #fff; transition: opacity .15s, transform .15s; }
+  .send:disabled { opacity: 0; transform: scale(.6); pointer-events: none; width: 0; margin-left: -4px; }
 
   /* настройки */
   .opt { padding: 13px 14px; }
   .opt + .opt { border-top: 1px solid var(--line); }
   .opt label { display: block; font-size: 14px; color: var(--muted); margin-bottom: 9px; }
   .seg { display: flex; background: var(--bg); border-radius: 11px; padding: 3px; gap: 3px; }
-  .seg button { flex: 1; font-size: 14px; padding: 8px 4px; border-radius: 9px; transition: background .15s; }
-  .seg button.on { background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.08); font-weight: 500; }
-  .toast { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 84px); transform: translate(-50%, 20px); opacity: 0;
+  .seg button { flex: 1; font-size: 14px; padding: 8px 2px; border-radius: 9px; transition: background .15s; }
+  .seg button.on { background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.1); font-weight: 500; }
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .swatch { border-radius: 14px; padding: 8px 4px 7px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 13px;
+    border: 2px solid transparent; }
+  .swatch i { width: 100%; height: 38px; border-radius: 9px; border: 1px solid var(--line); }
+  .swatch.on { border-color: var(--accent); }
+  .toast { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 96px); transform: translate(-50%, 20px); opacity: 0; z-index: 20;
     background: var(--text); color: var(--bg); font-size: 14px; padding: 9px 16px; border-radius: 18px; transition: .25s; pointer-events: none; }
   .toast.on { opacity: .92; transform: translate(-50%, 0); }
 </style>
@@ -124,45 +180,60 @@
 <body>
 <div class="app">
 
-<section class="view" id="v-list">
-  <div class="top">
-    <h1>Claude Code<span class="sub" id="list-sub">подключение…</span></h1>
-    <button class="icon" id="to-settings" aria-label="Настройки">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
-    </button>
-  </div>
-  <div class="banner" id="offline">Компьютер не на связи — открой VS Code, панель подключится сама.</div>
+<section class="view" id="v-chats">
+  <div class="top"><h1>Чаты<span class="sub" id="chats-sub">подключение…</span></h1></div>
+  <div class="banner" data-offline>Компьютер не на связи — открой VS Code, панель подключится сама.</div>
   <div class="scroll"><div class="pad">
     <div class="list" id="sessions"><div class="skeleton"></div><div class="skeleton"></div></div>
-    <p class="note" id="mode-note"></p>
   </div></div>
 </section>
 
-<section class="view hidden-right" id="v-chat">
-  <div class="top">
+<section class="view off" id="v-status">
+  <div class="top"><h1>Статусы<span class="sub" id="status-sub"></span></h1></div>
+  <div class="banner" data-offline>Компьютер не на связи — открой VS Code, панель подключится сама.</div>
+  <div class="scroll"><div class="pad">
+    <h2>Лимиты Claude</h2>
+    <div class="usage" id="usage"><div class="empty">Загрузка…</div></div>
+    <h2>Сессии</h2>
+    <div id="status-cards"></div>
+  </div></div>
+</section>
+
+<section class="view off" id="v-settings">
+  <div class="top"><h1>Настройки</h1></div>
+  <div class="scroll"><div class="pad">
+    <h2>Оформление</h2>
+    <div class="list"><div class="opt"><div class="swatches" id="themes"></div></div></div>
+    <h2>Уведомления в чат</h2>
+    <div class="list" id="settings"></div>
+    <p class="note">Сохраняется сразу. Основная сессия присылает ответы в чат целиком — её выбирают во вкладке «Статусы» или в переписке.</p>
+  </div></div>
+</section>
+
+<section class="view push" id="v-chat">
+  <div class="top small">
     <button class="icon" data-back aria-label="Назад"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
     <h1><span id="chat-title"></span><span class="sub" id="chat-sub"></span></h1>
-    <button class="make-main" id="make-main">Основная</button>
   </div>
   <div class="scroll" id="chat-scroll"><div class="chat" id="chat"></div></div>
   <div class="composer">
-    <textarea id="input" rows="1" placeholder="Сообщение" enterkeyhint="send"></textarea>
-    <button class="send" id="send" aria-label="Отправить" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+    <div class="attachments" id="attachments"></div>
+    <div class="pill">
+      <button class="round" id="attach" aria-label="Прикрепить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2L9.8 17.5a1.8 1.8 0 0 1-2.6-2.6l8-8"/></svg></button>
+      <textarea id="input" rows="1" placeholder="Сообщение" enterkeyhint="send"></textarea>
+      <button class="round send" id="send" aria-label="Отправить" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+    </div>
+    <input type="file" id="file" multiple hidden>
   </div>
-</section>
-
-<section class="view hidden-right" id="v-settings">
-  <div class="top">
-    <button class="icon" data-back aria-label="Назад"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-    <h1>Уведомления</h1>
-  </div>
-  <div class="scroll"><div class="pad">
-    <div class="list" id="settings"></div>
-    <p class="note">Изменения сохраняются сразу. Основная сессия присылает ответы в чат целиком — её выбирают кнопкой «Основная» в переписке.</p>
-  </div></div>
 </section>
 
 </div>
+
+<nav class="tabbar" id="tabbar">
+  <button data-tab="chats" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 3.5V17h0A2.5 2.5 0 0 1 4 14.5z"/></svg>Чаты</button>
+  <button data-tab="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V11M10 19V5M16 19v-6M22 19H2"/></svg>Статусы</button>
+  <button data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Настройки</button>
+</nav>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -174,14 +245,18 @@
     ["others", "Другие сессии", [["off", "Молчат"], ["short", "«Готово»"], ["full", "Итог"]]],
     ["questions", "Вопросы Claude", [[true, "С кнопками"], [false, "Только VS Code"]]],
   ];
+  const THEMES = [["auto", "Авто", "linear-gradient(135deg,#f2f1ef 50%,#1c1c1f 50%)"], ["light", "Светлая", "#f2f1ef"],
+                  ["dark", "Тёмная", "#1c1c1f"], ["black", "Чёрная", "#000"]];
   const STATUS = { work: "пишет…", idle: "открыта", sleep: "спит" };
+  const STATUS_LONG = { work: "Claude сейчас работает", idle: "вкладка открыта, ждёт", sleep: "вкладка спит — ответ выполнится в фоне" };
   const SENT = { delivered: "доставлено", queued: "в очереди — сессия спит", headless: "выполняется в фоне",
                  busy: "сессия ещё отвечает", no_claude: "не найден Claude в VS Code" };
   const PALETTE = ["#a9a3d1", "#9cbca5", "#d4b59e", "#c9a3b6", "#94b3c9", "#b8b38f"];
-  let data = null, view = "list", openId = null, lastHistory = "";
+  const MAX_FILE = 20 * 1024 * 1024;
+  let data = null, tab = "chats", openId = null, lastHistory = "", files = [];
   const $ = id => document.getElementById(id);
-  const seen = (() => { try { return JSON.parse(localStorage.getItem("seen") || "{}"); } catch (e) { return {}; } })();
-  function markSeen(id, at) { seen[id] = at; try { localStorage.setItem("seen", JSON.stringify(seen)); } catch (e) {} }
+  const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
+  const seen = store("seen") || {};
 
   // ---------- сеть ----------
   async function api(path, body) {
@@ -193,10 +268,7 @@
     if (!res.ok) throw new Error(res.status);
     return res.json();
   }
-  function online(ok) {
-    $("offline").classList.toggle("on", !ok);
-    if (!ok) $("list-sub").textContent = "нет связи с компьютером";
-  }
+  function online(ok) { document.querySelectorAll("[data-offline]").forEach(b => b.classList.toggle("on", !ok)); }
   function toast(text) {
     const t = $("toast"); t.textContent = text; t.classList.add("on");
     clearTimeout(toast.timer); toast.timer = setTimeout(() => t.classList.remove("on"), 1800);
@@ -205,11 +277,11 @@
 
   // ---------- текст как в Telegram ----------
   const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  function codeBlock(lang, code) {
-    return `<div class="code"><div class="code-head"><span>${esc(lang || "код")}</span><button data-copy>Копировать</button></div><pre>${esc(code)}</pre></div>`;
-  }
+  const codeBlock = (lang, code) => `<div class="code"><div class="code-head"><span>${esc(lang || "код")}</span><button data-copy>Копировать</button></div><pre>${esc(code)}</pre></div>`;
   function md(text) {
     const keep = [], stash = h => "\u0000" + (keep.push(h) - 1) + "\u0000";
+    text = text.replace(/^\[(?:Панель|Telegram): получен(?:о)? (фото|файл) ([^\]]*?)(?:, сохранено в [^\]]*)?\]\s*$/gm,
+      (_, kind, name) => stash(`<div class="file">${kind === "фото" ? "🖼" : "📄"} ${esc(name.replace(/^\d{10,}_/, ""))}</div>`));
     text = text.replace(/```([\w+#.-]*)[^\n]*\n?([\s\S]*?)(```|$)/g, (_, lang, c) => stash(codeBlock(lang, c.replace(/\n$/, ""))));
     text = text.replace(/((?:^|\n)\|.*(?:\n\|.*)*)/g, t => {
       const rows = t.trim().split("\n").filter(l => !/^\|?[\s:|-]+\|?$/.test(l))
@@ -233,9 +305,8 @@
   }
   const hhmm = d => d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
   function when(ts) {
-    const d = new Date(ts * 1000), now = new Date();
-    if (d.toDateString() === now.toDateString()) return hhmm(d);
-    return d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+    const d = new Date(ts * 1000);
+    return d.toDateString() === new Date().toDateString() ? hhmm(d) : d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
   }
   function dayLabel(d) {
     const now = new Date(), y = new Date(now - 864e5);
@@ -243,55 +314,109 @@
     if (d.toDateString() === y.toDateString()) return "Вчера";
     return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
   }
+  function resetIn(iso) {
+    const m = Math.max(0, Math.round((new Date(iso) - Date.now()) / 60000));
+    if (m < 60) return `сброс через ${m} мин`;
+    if (m < 1440) return `сброс через ${Math.floor(m / 60)} ч ${m % 60} мин`;
+    return "сброс " + new Date(iso).toLocaleDateString("ru-RU", { weekday: "short", hour: "2-digit", minute: "2-digit" });
+  }
   function avatar(s) {
     let h = 0; for (const c of s.t) h = (h * 31 + c.codePointAt(0)) >>> 0;
     const letter = (s.t.match(/[\p{L}\p{N}]/u) || ["#"])[0].toUpperCase();
     return `<div class="ava" style="background:${PALETTE[h % PALETTE.length]}">${esc(letter)}<i class="dot ${esc(s.st)}"></i></div>`;
   }
+  function plural(n, one, few, many) {
+    const n10 = n % 10, n100 = n % 100;
+    return n10 === 1 && n100 !== 11 ? one : n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14) ? few : many;
+  }
 
   // ---------- навигация ----------
-  function show(name) {
-    const order = { list: 0, chat: 1, settings: 1 };
-    ["list", "chat", "settings"].forEach(v => {
-      const el = $("v-" + v);
-      el.classList.toggle("hidden-right", v !== name && order[v] >= order[name]);
-      el.classList.toggle("hidden-left", v !== name && order[v] < order[name]);
-    });
-    view = name;
-    if (tg && tg.BackButton && tg.isVersionAtLeast && tg.isVersionAtLeast("6.1")) name === "list" ? tg.BackButton.hide() : tg.BackButton.show();
-    if (name === "list") { $("input").blur(); openId = null; renderList(); }
+  function setTab(name) {
+    tab = name;
+    ["chats", "status", "settings"].forEach(t => $("v-" + t).classList.toggle("off", t !== name));
+    document.querySelectorAll(".tabbar button").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
+    render();
+  }
+  function openChat(id) {
+    openId = id; lastHistory = "";
+    $("chat").innerHTML = '<div class="empty">Загрузка…</div>';
+    $("v-chat").classList.remove("push"); $("v-" + tab).classList.add("under");
+    $("tabbar").classList.add("hide");
+    if (tg && tg.isVersionAtLeast && tg.isVersionAtLeast("6.1")) tg.BackButton.show();
+    renderChatHeader(); loadHistory(true);
+  }
+  function closeChat() {
+    $("input").blur(); openId = null;
+    $("v-chat").classList.add("push"); $("v-" + tab).classList.remove("under");
+    $("tabbar").classList.remove("hide");
+    if (tg && tg.isVersionAtLeast && tg.isVersionAtLeast("6.1")) tg.BackButton.hide();
+    render();
   }
   function back() {
     if (document.activeElement === $("input")) { $("input").blur(); return; }  // сначала закрываем клавиатуру
-    show("list");
+    if (openId) closeChat();
   }
 
-  // ---------- экраны ----------
-  function renderList() {
+  // ---------- вкладки ----------
+  function render() {
     if (!data) return;
-    const n = data.sessions.length, n10 = n % 10, n100 = n % 100;
-    const word = n10 === 1 && n100 !== 11 ? "сессия открыта" : n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14) ? "сессии открыты" : "сессий открыто";
-    $("list-sub").textContent = data.settings.mode === "vscode" ? "режим VS Code · уведомления выключены" : `${n} ${word}`;
+    if (tab === "chats") renderChats();
+    if (tab === "status") renderStatus();
+    if (tab === "settings") renderSettings();
+  }
+
+  function renderChats() {
+    const n = data.sessions.length;
+    $("chats-sub").textContent = data.settings.mode === "vscode" ? "режим VS Code · уведомления выключены"
+      : `${n} ${plural(n, "сессия открыта", "сессии открыты", "сессий открыто")}`;
     const box = $("sessions");
-    if (!data.sessions.length) { box.innerHTML = '<div class="empty">Нет открытых вкладок Claude в VS Code</div>'; return; }
+    if (!n) { box.innerHTML = '<div class="empty">Нет открытых вкладок Claude в VS Code</div>'; return; }
     box.innerHTML = data.sessions.map(s => {
       const fresh = s.at && seen[s.id] !== undefined && s.at > seen[s.id] && s.st !== "work";
-      return `<div class="row tap" data-id="${esc(s.id)}">${avatar(s)}
+      return `<div class="row tap" data-open="${esc(s.id)}">${avatar(s)}
         <div class="grow"><div class="line1"><b>${esc(s.t)}</b><time>${s.at ? when(s.at) : ""}</time></div>
-        <div class="line2"><span>#${esc(s.id)} · ${STATUS[s.st] || ""}</span>
+        <div class="line2"><span>${s.st === "work" ? STATUS.work : esc(s.last || STATUS[s.st])}</span>
         ${s.id === data.selected ? '<span class="chip">основная</span>' : ""}${fresh ? '<span class="badge"></span>' : ""}</div></div></div>`;
     }).join("");
-    box.querySelectorAll(".row").forEach(r => r.onclick = () => { haptic(); openChat(r.dataset.id); });
-    $("mode-note").textContent = "Нажми сессию, чтобы открыть переписку и написать ей.";
+  }
+
+  function renderStatus() {
+    const u = data.usage, meter = (title, x) => {
+      if (!x) return "";
+      const pct = Math.round(x.pct), cls = pct >= 90 ? "full" : pct >= 70 ? "warn" : "";
+      return `<div class="meter"><div class="head"><span>${title}</span><b>${pct}%</b></div>
+        <div class="bar ${cls}"><i style="width:${Math.min(100, pct)}%"></i></div><div class="sub">${resetIn(x.reset)}</div></div>`;
+    };
+    $("usage").innerHTML = u ? meter("Сессия · 5 часов", u.five_hour) + meter("Неделя", u.seven_day)
+      : '<div class="empty">Лимиты недоступны — Claude Code не залогинен на ПК</div>';
+    const working = data.sessions.filter(s => s.st === "work").length;
+    $("status-sub").textContent = working ? `${working} ${plural(working, "сессия работает", "сессии работают", "сессий работают")}` : "все сессии ждут";
+    $("status-cards").innerHTML = data.sessions.map(s => `
+      <div class="scard"><div class="line1">${avatar(s)}<div class="grow" style="margin-left:4px">
+        <div class="line1"><b>${esc(s.t)}</b><time>${s.at ? when(s.at) : ""}</time></div>
+        <span class="state"><i class="dot ${esc(s.st)}"></i>${STATUS_LONG[s.st]}</span></div></div>
+        ${s.last ? `<div class="last">${esc(s.last)}</div>` : ""}
+        <div class="actions"><button data-open="${esc(s.id)}">Открыть</button>
+        ${s.id === data.selected ? '<button disabled style="opacity:.6">Основная ✓</button>' : `<button data-main="${esc(s.id)}">Сделать основной</button>`}</div></div>`).join("")
+      || '<div class="empty">Нет открытых вкладок Claude в VS Code</div>';
+  }
+
+  function renderSettings() {
+    const theme = store("theme") || "auto";
+    $("themes").innerHTML = THEMES.map(([k, t, bg]) => `<button class="swatch ${k === theme ? "on" : ""}" data-theme-pick="${k}"><i style="background:${bg}"></i>${t}</button>`).join("");
+    const cfg = data ? data.settings : {};
+    $("settings").innerHTML = OPTIONS.map(([key, title, vals]) => `
+      <div class="opt"><label>${title}</label><div class="seg">
+        ${vals.map(([v, t], i) => `<button data-k="${key}" data-i="${i}" class="${cfg[key] === v ? "on" : ""}">${t}</button>`).join("")}
+      </div></div>`).join("");
   }
 
   function renderChatHeader() {
     const s = data && data.sessions.find(x => x.id === openId);
     if (!s) return;
     $("chat-title").textContent = s.t;
-    $("chat-sub").textContent = `#${s.id} · ${STATUS[s.st] || ""}`;
-    $("make-main").style.display = s.id === data.selected ? "none" : "";
-    if (s.at) markSeen(s.id, s.at);
+    $("chat-sub").textContent = `${STATUS[s.st] || ""}${s.id === data.selected ? " · основная" : ""}`;
+    if (s.at) { seen[s.id] = s.at; store("seen", seen); }
   }
 
   async function loadHistory(scroll) {
@@ -314,102 +439,120 @@
     } catch (e) { online(false); }
   }
 
-  function openChat(id) {
-    openId = id; lastHistory = "";
-    $("chat").innerHTML = '<div class="empty">Загрузка…</div>';
-    renderChatHeader(); show("chat"); loadHistory(true);
+  // ---------- вложения и отправка ----------
+  function renderAttachments() {
+    $("attachments").innerHTML = files.map((f, i) => `<div class="att">${f.url ? `<img src="${f.url}" alt="">` : `📄 <span>${esc(f.file.name)}</span>`}<button class="x" data-rm="${i}">×</button></div>`).join("");
+    syncSend();
   }
+  function addFiles(list) {
+    for (const file of list) {
+      if (file.size > MAX_FILE) { toast(`«${file.name}» больше 20 МБ`); continue; }
+      files.push({ file, url: file.type.startsWith("image/") ? URL.createObjectURL(file) : null });
+    }
+    renderAttachments();
+  }
+  const readB64 = file => new Promise((ok, fail) => {
+    const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1] || ""); r.onerror = fail; r.readAsDataURL(file);
+  });
+  function syncSend() { $("send").disabled = !$("input").value.trim() && !files.length; }
 
   async function sendMessage() {
-    const input = $("input"), text = input.value.trim();
-    if (!text || !openId) return;
+    const input = $("input"), text = input.value.trim(), batch = files.slice();
+    if ((!text && !batch.length) || !openId) return;
     $("send").disabled = true;
     try {
-      const res = await api("/api/send", { id: openId, text });
-      input.value = ""; autosize();
-      $("chat").insertAdjacentHTML("beforeend", `<div class="msg user">${md(text)}<span class="time">${hhmm(new Date())}</span></div><div class="pending">${SENT[res.status] || res.status}</div>`);
+      let status = null, bubble = "";
+      for (let i = 0; i < batch.length; i++) {
+        const f = batch[i], caption = i === batch.length - 1 ? text : "";
+        const res = await api("/api/upload", { id: openId, name: f.file.name, mime: f.file.type, data: await readB64(f.file), caption });
+        status = res.status;
+        bubble += f.url ? `<img class="thumb" src="${f.url}" alt="">` : `<div class="file">📄 ${esc(f.file.name)}</div>`;
+      }
+      if (!batch.length) status = (await api("/api/send", { id: openId, text })).status;
+      input.value = ""; files = []; autosize(); renderAttachments();
+      $("chat").insertAdjacentHTML("beforeend", `<div class="msg user">${bubble}${text ? md(text) : ""}<span class="time">${hhmm(new Date())}</span></div><div class="pending">${SENT[status] || status}</div>`);
       $("chat-scroll").scrollTop = $("chat-scroll").scrollHeight;
       haptic("success");
-    } catch (e) { online(false); toast("Не отправлено — нет связи"); haptic("error"); }
-    $("send").disabled = !input.value.trim();
-  }
-
-  function renderSettings() {
-    const cfg = data ? data.settings : {};
-    $("settings").innerHTML = OPTIONS.map(([key, title, vals]) => `
-      <div class="opt"><label>${title}</label><div class="seg">
-        ${vals.map(([v, t], i) => `<button data-k="${key}" data-i="${i}" class="${cfg[key] === v ? "on" : ""}">${t}</button>`).join("")}
-      </div></div>`).join("");
-    $("settings").querySelectorAll("button").forEach(btn => btn.onclick = async () => {
-      if (!data) return;
-      const key = btn.dataset.k, before = data.settings[key];
-      const value = OPTIONS.find(o => o[0] === key)[2][+btn.dataset.i][0];
-      if (value === before) return;
-      haptic(); data.settings[key] = value; renderSettings();  // сразу, без ожидания туннеля
-      try { data = await api("/api/settings", { settings: { [key]: value } }); online(true); }
-      catch (e) { data.settings[key] = before; online(false); toast("Не сохранилось — нет связи"); }
-      renderSettings();
-    });
+    } catch (e) { online(false); toast(String(e.message) === "413" ? "Файл слишком большой" : "Не отправлено — нет связи"); haptic("error"); }
+    syncSend();
   }
 
   async function refresh() {
     try { data = await api("/api/state"); online(true); } catch (e) { online(false); return; }
-    if (view === "list") renderList();
-    if (view === "chat") renderChatHeader();
+    if (openId) renderChatHeader(); else render();
   }
-
   function autosize() { const t = $("input"); t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 150) + "px"; }
 
-  // ---------- старт ----------
+  // ---------- оформление ----------
   function applyTheme() {
-    const dark = tg && tg.colorScheme ? tg.colorScheme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    const pick = store("theme") || "auto";
+    const auto = tg && tg.colorScheme ? tg.colorScheme : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    document.documentElement.dataset.theme = pick === "auto" ? auto : pick;
     const bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
     if (tg) try { tg.setHeaderColor(bg); tg.setBackgroundColor(bg); tg.setBottomBarColor && tg.setBottomBarColor(bg); } catch (e) {}
   }
+
+  // ---------- события ----------
+  document.addEventListener("click", async e => {
+    const t = e.target;
+    const tabBtn = t.closest("[data-tab]"); if (tabBtn) { haptic(); setTab(tabBtn.dataset.tab); return; }
+    const open = t.closest("[data-open]"); if (open) { haptic(); openChat(open.dataset.open); return; }
+    const main = t.closest("[data-main]");
+    if (main) {
+      haptic();
+      try { data = await api("/api/select", { id: main.dataset.main }); render(); toast("Теперь это основная сессия"); } catch (er) { online(false); }
+      return;
+    }
+    const th = t.closest("[data-theme-pick]");
+    if (th) { haptic(); store("theme", th.dataset.themePick); applyTheme(); renderSettings(); return; }
+    const opt = t.closest("[data-k]");
+    if (opt && data) {
+      const key = opt.dataset.k, before = data.settings[key], value = OPTIONS.find(o => o[0] === key)[2][+opt.dataset.i][0];
+      if (value === before) return;
+      haptic(); data.settings[key] = value; renderSettings();  // сразу, не дожидаясь туннеля
+      try { data = await api("/api/settings", { settings: { [key]: value } }); online(true); }
+      catch (er) { data.settings[key] = before; online(false); toast("Не сохранилось — нет связи"); }
+      renderSettings(); return;
+    }
+    const rm = t.closest("[data-rm]"); if (rm) { files.splice(+rm.dataset.rm, 1); renderAttachments(); return; }
+    const copy = t.closest("[data-copy]");
+    if (copy) {
+      const pre = copy.closest(".code").querySelector("pre");
+      (navigator.clipboard ? navigator.clipboard.writeText(pre.innerText) : Promise.reject()).then(
+        () => { toast("Код скопирован"); haptic("success"); },
+        () => { const r = document.createRange(); r.selectNodeContents(pre); getSelection().removeAllRanges(); getSelection().addRange(r); toast("Выделено — скопируй"); });
+    }
+  });
+  document.querySelectorAll("[data-back]").forEach(b => b.onclick = back);
+  $("attach").onclick = () => { haptic(); $("file").click(); };
+  $("file").onchange = e => { addFiles(e.target.files); e.target.value = ""; };
+  $("input").oninput = () => { autosize(); syncSend(); };
+  $("input").onkeydown = e => { if (e.key === "Enter" && !e.shiftKey && (e.ctrlKey || e.metaKey || !matchMedia("(pointer: coarse)").matches)) { e.preventDefault(); sendMessage(); } };
+  $("input").addEventListener("paste", e => { const f = [...(e.clipboardData || {}).files || []]; if (f.length) { e.preventDefault(); addFiles(f); } });
+  $("send").onclick = sendMessage;
+  // клавиатура закрывается тапом по переписке или прокруткой
+  $("chat-scroll").addEventListener("touchstart", () => $("input").blur(), { passive: true });
+  $("chat-scroll").addEventListener("mousedown", () => $("input").blur());
+  // зум выключен: щипок и жесты iOS
+  ["gesturestart", "gesturechange"].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
+  document.addEventListener("touchmove", e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+
+  // ---------- старт ----------
   applyTheme();
   if (tg) {
     try { tg.ready(); tg.expand(); } catch (e) {}
     const v = x => tg.isVersionAtLeast && tg.isVersionAtLeast(x);
     if (v("8.0")) try { tg.requestFullscreen(); } catch (e) {}
-    if (v("7.7")) try { tg.disableVerticalSwipes(); } catch (e) {}  // свайп вниз не закрывает панель случайно
+    if (v("7.7")) try { tg.disableVerticalSwipes(); } catch (e) {}
     if (v("6.1")) try { tg.BackButton.onClick(back); } catch (e) {}
     try { tg.onEvent("themeChanged", applyTheme); } catch (e) {}
   }
-  // зум жестами выключен (iOS игнорирует user-scalable=no без этого)
-  ["gesturestart", "gesturechange"].forEach(e => document.addEventListener(e, ev => ev.preventDefault(), { passive: false }));
-  document.addEventListener("touchmove", e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
-
-  // клавиатура закрывается тапом по переписке или прокруткой
-  $("chat-scroll").addEventListener("touchstart", () => $("input").blur(), { passive: true });
-  $("chat-scroll").addEventListener("mousedown", () => $("input").blur());
-  $("chat").addEventListener("click", e => {
-    const btn = e.target.closest("[data-copy]");
-    if (!btn) return;
-    const code = btn.closest(".code").querySelector("pre").innerText;
-    (navigator.clipboard ? navigator.clipboard.writeText(code) : Promise.reject()).then(
-      () => { toast("Код скопирован"); haptic("success"); },
-      () => { const r = document.createRange(); r.selectNodeContents(btn.closest(".code").querySelector("pre"));
-              getSelection().removeAllRanges(); getSelection().addRange(r); toast("Выделено — скопируй"); });
-  });
-
-  document.querySelectorAll("[data-back]").forEach(b => b.onclick = back);
-  $("to-settings").onclick = () => { haptic(); renderSettings(); show("settings"); };
-  $("make-main").onclick = async () => {
-    haptic();
-    try { data = await api("/api/select", { id: openId }); renderChatHeader(); toast("Теперь это основная сессия"); }
-    catch (e) { online(false); }
-  };
-  $("input").oninput = () => { autosize(); $("send").disabled = !$("input").value.trim(); };
-  $("input").onkeydown = e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey || !matchMedia("(pointer: coarse)").matches) && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
-  $("send").onclick = sendMessage;
-
-  show("list");
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme);
   if (!API) { online(false); $("sessions").innerHTML = '<div class="empty">Открой панель кнопкой «Панель» в чате с ботом</div>'; }
   else {
     refresh();
     setInterval(refresh, 5000);
-    setInterval(() => view === "chat" && loadHistory(false), 4000);
+    setInterval(() => openId && loadHistory(false), 4000);
   }
 </script>
 </body>
