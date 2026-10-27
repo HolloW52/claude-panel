@@ -8,253 +8,354 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root, [data-theme="light"] {
-    --bg: #f2f1ef; --card: #fbfbfa; --line: #e5e3df; --text: #2f2e33; --muted: #8b8891;
-    --accent: #9f9ac8; --accent-text: #6f69a3; --accent-soft: #eceaf5; --sage: #9cbca5; --sleep: #cdc9c4;
-    --mine: #e9e7f4; --code-bg: #f0eff3; --code-head: #e6e4ee; --quote: #b5b0d6;
-    --glass: rgba(251, 251, 250, .78); --glass-line: rgba(0, 0, 0, .06); --shadow: 0 8px 28px rgba(40, 36, 60, .12);
+    --bg: #efeff4; --card: #fff; --line: #e1e0e6; --text: #000; --muted: #8e8e93;
+    --accent: #8f88c8; --accent-text: #6a63a8; --accent-soft: #ecebf6; --sage: #8cbf9a; --sleep: #c7c7cc;
+    --in: #fff; --out: #e7e4f7; --out-text: #000; --time-out: #8b86ad;
+    --wall: linear-gradient(160deg, #e9e6f2 0%, #e4ece6 52%, #efe9e2 100%); --wall-dot: rgba(120, 110, 160, .07);
+    --code-bg: rgba(110, 100, 160, .08); --code-head: rgba(110, 100, 160, .12); --quote: #a9a2d8;
+    --glass: rgba(247, 247, 250, .82); --glass-line: rgba(0, 0, 0, .08); --shadow: 0 6px 24px rgba(40, 36, 60, .12);
+    --search: rgba(118, 118, 128, .12);
   }
   [data-theme="dark"] {
-    --bg: #1c1c1f; --card: #26262a; --line: #323238; --text: #e8e7ec; --muted: #8d8a95;
-    --accent: #958fc2; --accent-text: #b4afe0; --accent-soft: #2e2d38; --sage: #8aab94; --sleep: #504e55;
-    --mine: #343243; --code-bg: #1f1f24; --code-head: #2b2a33; --quote: #7d78a8;
-    --glass: rgba(38, 38, 42, .78); --glass-line: rgba(255, 255, 255, .07); --shadow: 0 8px 28px rgba(0, 0, 0, .35);
+    --bg: #1c1c1e; --card: #2c2c2e; --line: #38383c; --text: #fff; --muted: #8e8e93;
+    --accent: #9d97d6; --accent-text: #b8b2ec; --accent-soft: #33323f; --sage: #7fae8c; --sleep: #48484a;
+    --in: #2c2c2e; --out: #48446e; --out-text: #fff; --time-out: #b3aedb;
+    --wall: linear-gradient(160deg, #22212b 0%, #1e2522 55%, #26221f 100%); --wall-dot: rgba(255, 255, 255, .035);
+    --code-bg: rgba(255, 255, 255, .06); --code-head: rgba(255, 255, 255, .09); --quote: #8b85c4;
+    --glass: rgba(30, 30, 32, .82); --glass-line: rgba(255, 255, 255, .08); --shadow: 0 6px 24px rgba(0, 0, 0, .4);
+    --search: rgba(118, 118, 128, .24);
   }
   [data-theme="black"] {
-    --bg: #000; --card: #121214; --line: #222226; --text: #ecebf0; --muted: #85828c;
-    --accent: #8e88bf; --accent-text: #b2adde; --accent-soft: #1c1b24; --sage: #82a38c; --sleep: #3f3d44;
-    --mine: #25233a; --code-bg: #0b0b0d; --code-head: #19181f; --quote: #6f6a99;
-    --glass: rgba(20, 20, 23, .8); --glass-line: rgba(255, 255, 255, .08); --shadow: 0 8px 28px rgba(0, 0, 0, .6);
+    --bg: #000; --card: #1c1c1e; --line: #2c2c2e; --text: #fff; --muted: #8e8e93;
+    --accent: #9a94d4; --accent-text: #b8b2ec; --accent-soft: #24232e; --sage: #78a685; --sleep: #3a3a3c;
+    --in: #1c1c1e; --out: #3b3760; --out-text: #fff; --time-out: #aaa5d6;
+    --wall: #000; --wall-dot: rgba(255, 255, 255, .03);
+    --code-bg: rgba(255, 255, 255, .06); --code-head: rgba(255, 255, 255, .09); --quote: #8b85c4;
+    --glass: rgba(14, 14, 15, .84); --glass-line: rgba(255, 255, 255, .09); --shadow: 0 6px 24px rgba(0, 0, 0, .7);
+    --search: rgba(118, 118, 128, .24);
   }
   :root {
     --safe-top: max(var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px));
     --safe-bottom: max(var(--tg-safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px));
     --content-top: var(--tg-content-safe-area-inset-top, 0px);
-    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, "Segoe UI", "Open Sans", "Helvetica Neue", sans-serif;
-    --mono: "SF Mono", "JetBrains Mono", "Roboto Mono", Menlo, Consolas, monospace;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Roboto, "Segoe UI", sans-serif;
+    --mono: "SF Mono", ui-monospace, Menlo, "Roboto Mono", Consolas, monospace;
+    --msg: 17px;
   }
+  [data-size="small"] { --msg: 15px; } [data-size="large"] { --msg: 19px; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text);
-    font: 16px/1.4 var(--font); -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%;
-    touch-action: manipulation; overscroll-behavior: none; }
-  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; padding: 0; }
+    font: 17px/1.3 var(--font); -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%;
+    touch-action: manipulation; overscroll-behavior: none; letter-spacing: -.2px; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; padding: 0; letter-spacing: inherit; }
+  input { font: inherit; letter-spacing: inherit; }
   .app { position: fixed; inset: 0; height: var(--tg-viewport-height, 100%); overflow: hidden; }
   .view { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--bg);
-    transition: transform .3s cubic-bezier(.2,.8,.2,1), opacity .22s; }
-  .view.off { opacity: 0; pointer-events: none; transform: translateY(8px); }
+    transition: transform .32s cubic-bezier(.2,.8,.2,1), opacity .22s; }
+  .view.off { opacity: 0; pointer-events: none; }
   .view.push { transform: translateX(100%); pointer-events: none; }
-  .view.under { transform: translateX(-22%); opacity: 0; pointer-events: none; }
-
-  .top { flex: none; display: flex; align-items: center; gap: 6px; min-height: 52px;
-    padding: calc(var(--safe-top) + var(--content-top) + 6px) 12px 6px; }
-  .top h1 { flex: 1; margin: 0 4px; min-width: 0; font-size: 22px; font-weight: 700; letter-spacing: -.3px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .top.small h1 { font-size: 17px; font-weight: 600; letter-spacing: -.1px; }
-  .top .sub { display: block; font-size: 13px; font-weight: 400; color: var(--muted); letter-spacing: 0; }
-  .icon { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; color: var(--muted); flex: none; }
-  .icon:active { background: var(--accent-soft); }
-  .icon svg { width: 22px; height: 22px; }
+  .view.under { transform: translateX(-25%); pointer-events: none; }
   .scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; }
   .scroll::-webkit-scrollbar, .attachments::-webkit-scrollbar { display: none; }
-  .pad { padding: 4px 14px calc(var(--safe-bottom) + 104px); }
-  h2 { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 18px 6px 8px; }
-  h2:first-child { margin-top: 6px; }
-  .list { background: var(--card); border-radius: 16px; overflow: hidden; }
-  .row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; position: relative; }
-  .row + .row::before { content: ""; position: absolute; top: 0; left: 70px; right: 0; border-top: 1px solid var(--line); }
-  .tap { cursor: pointer; transition: background .15s; }
-  .tap:active { background: var(--accent-soft); }
-  .ava { width: 44px; height: 44px; border-radius: 50%; flex: none; display: grid; place-items: center;
-    font-weight: 600; font-size: 17px; color: #fff; position: relative; }
-  .ava .dot { position: absolute; right: -1px; bottom: -1px; width: 13px; height: 13px; border: 2.5px solid var(--card); }
+  .pad { padding: 0 16px calc(var(--safe-bottom) + 100px); }
+
+  /* крупный заголовок iOS */
+  .large { flex: none; padding: calc(var(--safe-top) + var(--content-top) + 10px) 16px 8px; }
+  .large h1 { margin: 0; font-size: 34px; font-weight: 700; letter-spacing: .3px; line-height: 1.15; }
+  .large .sub { font-size: 15px; color: var(--muted); margin-top: 2px; letter-spacing: -.2px; }
+  .search { display: flex; align-items: center; gap: 6px; margin: 10px 0 2px; height: 36px; padding: 0 8px;
+    border-radius: 10px; background: var(--search); color: var(--muted); }
+  .search svg { width: 17px; height: 17px; flex: none; }
+  .search input { flex: 1; border: 0; background: none; outline: none; color: var(--text); font-size: 17px; min-width: 0; }
+  .search input::placeholder { color: var(--muted); }
+  .banner { margin: 6px 16px; padding: 10px 14px; border-radius: 12px; font-size: 15px;
+    background: var(--accent-soft); color: var(--accent-text); display: none; }
+  .banner.on { display: block; }
+
+  /* список чатов как в Telegram */
+  .chats { background: var(--card); }
+  [data-theme] .chats { margin: 0 -16px; }
+  .crow { display: flex; gap: 12px; padding: 8px 16px 0 12px; cursor: pointer; position: relative; user-select: none; -webkit-user-select: none;
+    -webkit-touch-callout: none; transition: background .15s; }
+  .crow:active, .crow.hold { background: var(--accent-soft); }
+  .crow .ava { margin-bottom: 8px; }
+  .crow .body { flex: 1; min-width: 0; padding-bottom: 8px; border-bottom: .5px solid var(--line); }
+  .crow:last-child .body { border-bottom: 0; }
+  .crow .l1 { display: flex; align-items: center; gap: 6px; }
+  .crow .l1 b { flex: 1; min-width: 0; font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .crow .l1 time { font-size: 15px; color: var(--muted); flex: none; }
+  .crow .l2 { display: flex; align-items: flex-start; gap: 8px; margin-top: 1px; }
+  .crow .prev { flex: 1; min-width: 0; font-size: 16px; line-height: 1.3; color: var(--muted); display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 41px; }
+  .crow .prev em { font-style: normal; color: var(--accent-text); }
+  .crow .marks { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; padding-top: 2px; flex: none; }
+  .pin { width: 15px; height: 15px; color: var(--muted); }
+  .badge { width: 11px; height: 11px; border-radius: 50%; background: var(--accent); margin-top: 3px; }
+  .main-mark { width: 18px; height: 18px; color: var(--accent); }
+  .ava { width: 58px; height: 58px; border-radius: 50%; flex: none; display: grid; place-items: center; overflow: hidden;
+    font-weight: 600; font-size: 22px; color: #fff; position: relative; background-size: cover; background-position: center; }
+  .ava-wrap { position: relative; flex: none; }
+  .ava-wrap .dot { position: absolute; right: 1px; bottom: 9px; width: 15px; height: 15px; border: 2.5px solid var(--card); }
   .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--sleep); }
   .dot.work { background: var(--sage); animation: pulse 1.6s ease-in-out infinite; }
   .dot.idle { background: var(--accent); }
-  @keyframes pulse { 50% { opacity: .4; } }
-  .grow { flex: 1; min-width: 0; }
-  .line1 { display: flex; align-items: baseline; gap: 8px; }
-  .line1 b { flex: 1; min-width: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .line1 time { font-size: 13px; color: var(--muted); flex: none; }
-  .line2 { display: flex; align-items: center; gap: 8px; margin-top: 2px; font-size: 14px; color: var(--muted); }
-  .line2 span:first-child { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .badge { width: 9px; height: 9px; border-radius: 5px; background: var(--accent); flex: none; }
-  .chip { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-text); flex: none; }
-  .note { font-size: 13px; color: var(--muted); margin: 10px 6px 0; line-height: 1.45; }
-  .banner { margin: 0 14px 8px; padding: 10px 14px; border-radius: 14px; font-size: 14px;
-    background: var(--accent-soft); color: var(--accent-text); display: none; }
-  .banner.on { display: block; }
-  .empty { padding: 26px 16px; color: var(--muted); text-align: center; font-size: 15px; }
-  .skeleton { height: 64px; margin: 1px 0; background: linear-gradient(90deg, var(--card), var(--accent-soft), var(--card));
+  @keyframes pulse { 50% { opacity: .45; } }
+  .empty { padding: 30px 16px; color: var(--muted); text-align: center; font-size: 16px; }
+  .skeleton { height: 74px; background: linear-gradient(90deg, var(--card), var(--accent-soft), var(--card));
     background-size: 200% 100%; animation: shimmer 1.2s infinite; }
   @keyframes shimmer { to { background-position: -200% 0; } }
 
-  /* стеклянная «таблетка» вкладок, как в Telegram на iPhone */
-  .tabbar { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 12px); transform: translateX(-50%); z-index: 10;
-    display: flex; gap: 2px; padding: 5px; border-radius: 30px; background: var(--glass); border: 1px solid var(--glass-line);
-    -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6); box-shadow: var(--shadow);
-    transition: transform .3s cubic-bezier(.2,.8,.2,1), opacity .2s; }
-  .tabbar.hide { transform: translate(-50%, 140%); opacity: 0; }
-  .tabbar button { width: 86px; padding: 6px 0 5px; border-radius: 24px; display: flex; flex-direction: column; align-items: center;
-    gap: 2px; font-size: 11px; font-weight: 500; color: var(--muted); transition: background .2s, color .2s; }
-  .tabbar button svg { width: 24px; height: 24px; }
+  /* стеклянная «таблетка» вкладок */
+  .tabbar { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 10px); transform: translateX(-50%); z-index: 10;
+    display: flex; gap: 2px; padding: 4px; border-radius: 30px; background: var(--glass); border: .5px solid var(--glass-line);
+    -webkit-backdrop-filter: blur(24px) saturate(1.8); backdrop-filter: blur(24px) saturate(1.8); box-shadow: var(--shadow);
+    transition: transform .32s cubic-bezier(.2,.8,.2,1), opacity .2s; }
+  .tabbar.hide { transform: translate(-50%, 150%); opacity: 0; }
+  .tabbar button { width: 88px; padding: 6px 0 5px; border-radius: 26px; display: flex; flex-direction: column; align-items: center;
+    gap: 1px; font-size: 11px; font-weight: 500; color: var(--muted); transition: background .2s, color .2s; letter-spacing: 0; }
+  .tabbar button svg { width: 26px; height: 26px; }
   .tabbar button.on { background: var(--accent-soft); color: var(--accent-text); }
 
-  /* статусы */
-  .usage { background: var(--card); border-radius: 16px; padding: 14px; display: grid; gap: 14px; }
-  .meter .head { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 7px; }
-  .meter .head b { font-weight: 600; }
-  .bar { height: 8px; border-radius: 4px; background: var(--accent-soft); overflow: hidden; }
-  .bar i { display: block; height: 100%; border-radius: 4px; background: var(--accent); transition: width .5s; }
-  .bar.warn i { background: #d4ab8c; } .bar.full i { background: #cf8f8f; }
-  .meter .sub { font-size: 13px; color: var(--muted); margin-top: 5px; }
-  .scard { background: var(--card); border-radius: 16px; padding: 12px 14px; margin-bottom: 8px; }
-  .scard .line1 { align-items: center; }
-  .scard .state { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); margin-top: 4px; }
-  .scard .last { font-size: 14px; color: var(--muted); margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical; overflow: hidden; }
-  .actions { display: flex; gap: 8px; margin-top: 10px; }
-  .actions button { flex: 1; font-size: 14px; padding: 8px; border-radius: 12px; background: var(--accent-soft); color: var(--accent-text); }
+  /* сгруппированные списки iOS */
+  h2 { font-size: 13px; font-weight: 400; text-transform: uppercase; color: var(--muted); margin: 24px 16px 7px; letter-spacing: -.1px; }
+  .group { background: var(--card); border-radius: 12px; overflow: hidden; }
+  .item { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 16px 0 14px; position: relative; }
+  .item + .item::before { content: ""; position: absolute; top: 0; left: 56px; right: 0; border-top: .5px solid var(--line); }
+  .item .ic { width: 29px; height: 29px; border-radius: 7px; display: grid; place-items: center; color: #fff; flex: none; }
+  .item .ic svg { width: 18px; height: 18px; }
+  .item .name { flex: 1; font-size: 17px; padding: 11px 0; }
+  .item .val { color: var(--muted); font-size: 17px; }
+  .block { padding: 10px 14px 14px 55px; }
+  .item + .block, .block + .item { border-top: .5px solid var(--line); margin-left: 0; }
+  .note { font-size: 13px; color: var(--muted); margin: 7px 16px 0; line-height: 1.4; letter-spacing: -.1px; }
+  .seg { display: flex; background: var(--search); border-radius: 9px; padding: 2px; gap: 2px; }
+  .seg button { flex: 1; font-size: 13px; font-weight: 500; padding: 6px 2px; border-radius: 7px; letter-spacing: -.1px; }
+  .seg button.on { background: var(--card); box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px 14px; }
+  .swatch { border-radius: 12px; padding: 7px 4px 6px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 13px;
+    border: 2px solid transparent; }
+  .swatch i { width: 100%; height: 44px; border-radius: 8px; border: .5px solid var(--line); }
+  .swatch.on { border-color: var(--accent); }
+  .profile { display: flex; flex-direction: column; align-items: center; padding: 14px 0 4px; text-align: center; }
+  .profile .ava { width: 92px; height: 92px; font-size: 36px; margin-bottom: 10px; }
+  .profile b { font-size: 24px; font-weight: 600; }
+  .profile span { font-size: 15px; color: var(--muted); margin-top: 3px; }
 
-  /* переписка */
-  .chat { padding: 6px 10px 10px; display: flex; flex-direction: column; gap: 4px; }
-  .day { align-self: center; font-size: 13px; color: var(--muted); background: var(--accent-soft);
-    padding: 3px 10px; border-radius: 12px; margin: 10px 0 6px; }
-  .msg { position: relative; max-width: min(88%, 620px); padding: 7px 11px 6px; border-radius: 18px; background: var(--card);
-    font-size: 16px; line-height: 1.38; word-wrap: break-word; overflow-wrap: anywhere; align-self: flex-start;
-    border-bottom-left-radius: 6px; user-select: text; -webkit-user-select: text; }
-  .msg.user { align-self: flex-end; background: var(--mine); border-bottom-left-radius: 18px; border-bottom-right-radius: 6px; }
-  .msg + .msg.user, .msg.user + .msg:not(.user) { margin-top: 6px; }
-  .msg .time { float: right; font-size: 12px; color: var(--muted); margin: 8px 0 -3px 10px; line-height: 1; }
-  .msg p { margin: 0 0 7px; } .msg p:last-of-type { margin-bottom: 0; }
+  /* статусы */
+  .usage { padding: 14px; display: grid; gap: 16px; }
+  .meter .head { display: flex; justify-content: space-between; font-size: 16px; margin-bottom: 8px; }
+  .meter .head b { font-weight: 600; }
+  .bar { height: 8px; border-radius: 4px; background: var(--search); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 4px; background: var(--accent); transition: width .5s; }
+  .bar.warn i { background: #d9ab83; } .bar.full i { background: #d98a8a; }
+  .meter .sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .scard { background: var(--card); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+  .scard .top-line { display: flex; align-items: center; gap: 12px; }
+  .scard .ava { width: 44px; height: 44px; font-size: 18px; }
+  .scard b { display: block; font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .scard .state { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); margin-top: 2px; }
+  .scard .last { font-size: 15px; color: var(--muted); margin-top: 10px; display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden; }
+  .actions { display: flex; gap: 8px; margin-top: 12px; }
+  .actions button { flex: 1; font-size: 15px; font-weight: 500; padding: 9px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-text); }
+
+  /* экран чата */
+  #v-chat { background: var(--wall); }
+  #v-chat::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(var(--wall-dot) 1.2px, transparent 1.3px); background-size: 22px 22px; }
+  .chathead { position: relative; z-index: 2; flex: none; display: flex; align-items: center; gap: 8px;
+    padding: calc(var(--safe-top) + var(--content-top) + 4px) 10px 6px 4px; background: var(--glass);
+    -webkit-backdrop-filter: blur(24px) saturate(1.8); backdrop-filter: blur(24px) saturate(1.8); border-bottom: .5px solid var(--glass-line); }
+  .backbtn { display: flex; align-items: center; gap: 0; color: var(--accent-text); font-size: 17px; padding: 6px 4px; min-width: 82px; }
+  .backbtn svg { width: 24px; height: 24px; margin-right: -2px; }
+  .chathead .center { flex: 1; min-width: 0; text-align: center; }
+  .chathead .center b { display: block; font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chathead .center span { font-size: 13px; color: var(--muted); }
+  .chathead .center span.work { color: var(--accent-text); }
+  .chathead .right { min-width: 82px; display: flex; justify-content: flex-end; }
+  .chathead .ava { width: 38px; height: 38px; font-size: 16px; }
+  .chat { position: relative; padding: 8px 8px 10px; display: flex; flex-direction: column; }
+  .day { align-self: center; font-size: 13px; font-weight: 500; color: #fff; background: rgba(0, 0, 0, .22);
+    padding: 3px 9px; border-radius: 11px; margin: 8px 0; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+  .msg { position: relative; max-width: min(80%, 560px); padding: 6px 10px 7px 11px; background: var(--in); border-radius: 18px;
+    font-size: var(--msg); line-height: 1.32; letter-spacing: -.3px; word-wrap: break-word; overflow-wrap: anywhere;
+    align-self: flex-start; margin: 1px 0 1px 7px; user-select: text; -webkit-user-select: text;
+    box-shadow: 0 .5px 1px rgba(0, 0, 0, .08); }
+  .msg.out { align-self: flex-end; background: var(--out); color: var(--out-text); margin: 1px 7px 1px 0; }
+  .msg.in.mid { border-bottom-left-radius: 6px; } .msg.in.cont { border-top-left-radius: 6px; }
+  .msg.out.mid { border-bottom-right-radius: 6px; } .msg.out.cont { border-top-right-radius: 6px; }
+  .msg.gap { margin-top: 7px; }
+  .msg.tail.in { border-bottom-left-radius: 4px; } .msg.tail.out { border-bottom-right-radius: 4px; }
+  .msg.tail::after { content: ""; position: absolute; bottom: 0; width: 12px; height: 18px; background: inherit;
+    -webkit-mask: var(--tail) no-repeat; mask: var(--tail) no-repeat; }
+  .msg.tail.in::after { left: -6px; --tail: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 18'%3E%3Cpath d='M12 0v18H1.5C4.6 17 6.5 14.6 6.5 11V0z'/%3E%3C/svg%3E"); }
+  .msg.tail.out::after { right: -6px; --tail: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 18'%3E%3Cpath d='M0 0v18h10.5C7.4 17 5.5 14.6 5.5 11V0z'/%3E%3C/svg%3E"); }
+  .msg .time { float: right; font-size: 11.5px; letter-spacing: 0; color: var(--muted); margin: 9px -2px -4px 10px; line-height: 1; }
+  .msg.out .time { color: var(--time-out); }
+  .msg p { margin: 0 0 6px; } .msg p:last-of-type { margin-bottom: 0; }
   .msg b { font-weight: 600; }
   .msg a { color: var(--accent-text); text-decoration: none; }
-  .msg code { font: .88em var(--mono); color: var(--accent-text); background: var(--code-bg); padding: 1px 5px; border-radius: 5px; }
-  .msg blockquote { margin: 4px 0 7px; padding: 2px 0 2px 10px; border-left: 3px solid var(--quote); border-radius: 2px; color: var(--muted); }
-  .msg .file { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-  .msg img.thumb { display: block; max-width: 100%; max-height: 260px; border-radius: 12px; margin-bottom: 4px; }
-  .code { margin: 6px 0 8px; border-radius: 10px; overflow: hidden; background: var(--code-bg); border-left: 3px solid var(--quote); }
-  .code-head { display: flex; align-items: center; padding: 5px 10px; background: var(--code-head);
-    font-size: 13px; font-weight: 500; color: var(--accent-text); }
+  .msg code { font: .86em var(--mono); color: var(--accent-text); letter-spacing: 0; }
+  .msg blockquote { margin: 3px 0 6px; padding: 3px 8px 3px 9px; border-left: 3px solid var(--quote); border-radius: 4px;
+    background: var(--code-bg); font-size: .94em; }
+  .msg .file { display: flex; align-items: center; gap: 10px; font-size: 15px; margin: 2px 0 4px; }
+  .msg .file i { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center;
+    font-style: normal; font-size: 18px; flex: none; }
+  .msg img.thumb { display: block; max-width: 100%; max-height: 280px; border-radius: 13px; margin: -2px -6px 5px -7px; }
+  .code { margin: 4px 0 6px; border-radius: 8px; overflow: hidden; background: var(--code-bg); border-left: 3px solid var(--quote); }
+  .code-head { display: flex; align-items: center; padding: 4px 8px 0 9px; font-size: 13px; font-weight: 600; color: var(--accent-text); letter-spacing: 0; }
   .code-head span { flex: 1; }
-  .code-head button { font-size: 13px; color: var(--muted); }
-  .code pre { margin: 0; padding: 8px 10px; overflow-x: auto; font: 13.5px/1.45 var(--mono); white-space: pre; color: var(--text); }
-  .pending { align-self: flex-end; font-size: 13px; color: var(--muted); margin: 1px 4px 4px; }
+  .code-head button { font-size: 13px; font-weight: 400; color: var(--accent-text); opacity: .8; }
+  .code pre { margin: 0; padding: 3px 9px 7px; overflow-x: auto; font: 13.5px/1.4 var(--mono); white-space: pre; letter-spacing: 0; }
+  .pending { align-self: flex-end; font-size: 12px; color: var(--muted); margin: 2px 12px 4px; }
 
-  /* поле ввода - тоже «таблетка» */
-  .composer { flex: none; padding: 6px 10px calc(var(--safe-bottom) + 10px); }
-  .attachments { display: flex; gap: 8px; overflow-x: auto; padding: 0 2px 8px; }
+  /* поле ввода как в Telegram iOS */
+  .composer { position: relative; z-index: 2; flex: none; background: var(--glass); border-top: .5px solid var(--glass-line);
+    -webkit-backdrop-filter: blur(24px) saturate(1.8); backdrop-filter: blur(24px) saturate(1.8);
+    padding: 6px 8px calc(var(--safe-bottom) + 6px); transition: padding .15s; }
+  body.kb .composer { padding-bottom: 6px; }  /* клавиатура открыта - отступ под «домой» не нужен */
+  .attachments { display: flex; gap: 8px; overflow-x: auto; padding: 2px 4px 8px; }
   .attachments:empty { display: none; }
-  .att { position: relative; flex: none; height: 64px; min-width: 64px; max-width: 180px; border-radius: 14px; background: var(--card);
-    display: flex; align-items: center; gap: 8px; padding: 0 12px; font-size: 13px; overflow: hidden; }
+  .att { position: relative; flex: none; height: 60px; min-width: 60px; max-width: 170px; border-radius: 10px; background: var(--card);
+    display: flex; align-items: center; gap: 6px; padding: 0 10px; font-size: 13px; overflow: hidden; }
   .att img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .att span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .att .x { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,.55);
-    color: #fff; font-size: 13px; line-height: 20px; text-align: center; }
-  .pill { display: flex; align-items: flex-end; gap: 4px; padding: 4px; border-radius: 26px; background: var(--glass);
-    border: 1px solid var(--glass-line); -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6);
-    box-shadow: var(--shadow); }
-  .pill textarea { flex: 1; resize: none; border: 0; background: transparent; color: var(--text); padding: 9px 4px;
-    font: 16px/1.35 var(--font); max-height: 150px; outline: none; }
-  .pill textarea::placeholder { color: var(--muted); }
-  .round { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; flex: none; color: var(--muted); }
-  .round:active { background: var(--accent-soft); }
-  .round svg { width: 22px; height: 22px; }
-  .send { background: var(--accent); color: #fff; transition: opacity .15s, transform .15s; }
-  .send:disabled { opacity: 0; transform: scale(.6); pointer-events: none; width: 0; margin-left: -4px; }
+  .att .x { position: absolute; top: 3px; right: 3px; width: 19px; height: 19px; border-radius: 50%; background: rgba(0,0,0,.55);
+    color: #fff; font-size: 13px; line-height: 19px; text-align: center; }
+  .bar-row { display: flex; align-items: flex-end; gap: 6px; }
+  .field { flex: 1; display: flex; min-height: 36px; border-radius: 18px; background: var(--card); border: .5px solid var(--line); }
+  .field textarea { flex: 1; resize: none; border: 0; background: transparent; color: var(--text); padding: 7px 12px;
+    font: 16px/1.3 var(--font); letter-spacing: -.2px; max-height: 130px; outline: none; }
+  .field textarea::placeholder { color: var(--muted); }
+  .round { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex: none; color: var(--muted); }
+  .round svg { width: 26px; height: 26px; }
+  .send { background: var(--accent); color: #fff; width: 34px; height: 34px; margin: 1px; transition: opacity .15s, transform .15s; }
+  .send svg { width: 18px; height: 18px; }
+  .send:disabled { display: none; }
 
-  /* настройки */
-  .opt { padding: 13px 14px; }
-  .opt + .opt { border-top: 1px solid var(--line); }
-  .opt label { display: block; font-size: 14px; color: var(--muted); margin-bottom: 9px; }
-  .seg { display: flex; background: var(--bg); border-radius: 11px; padding: 3px; gap: 3px; }
-  .seg button { flex: 1; font-size: 14px; padding: 8px 2px; border-radius: 9px; transition: background .15s; }
-  .seg button.on { background: var(--card); box-shadow: 0 1px 3px rgba(0,0,0,.1); font-weight: 500; }
-  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .swatch { border-radius: 14px; padding: 8px 4px 7px; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 13px;
-    border: 2px solid transparent; }
-  .swatch i { width: 100%; height: 38px; border-radius: 9px; border: 1px solid var(--line); }
-  .swatch.on { border-color: var(--accent); }
-  .toast { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 96px); transform: translate(-50%, 20px); opacity: 0; z-index: 20;
-    background: var(--text); color: var(--bg); font-size: 14px; padding: 9px 16px; border-radius: 18px; transition: .25s; pointer-events: none; }
-  .toast.on { opacity: .92; transform: translate(-50%, 0); }
+  /* меню по долгому нажатию */
+  .sheet-back { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.3); opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .sheet-back.on { opacity: 1; pointer-events: auto; }
+  .sheet { position: fixed; left: 8px; right: 8px; bottom: calc(var(--safe-bottom) + 8px); z-index: 31; max-width: 520px; margin: 0 auto;
+    transform: translateY(120%); transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+  .sheet.on { transform: none; }
+  .sheet .grp { background: var(--glass); -webkit-backdrop-filter: blur(24px) saturate(1.8); backdrop-filter: blur(24px) saturate(1.8);
+    border-radius: 14px; overflow: hidden; }
+  .sheet .grp + .grp { margin-top: 8px; }
+  .sheet .title { padding: 13px 16px; text-align: center; font-size: 13px; color: var(--muted); border-bottom: .5px solid var(--line); }
+  .sheet button { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 16px; font-size: 19px; color: var(--accent-text); letter-spacing: -.3px; }
+  .sheet button + button { border-top: .5px solid var(--line); }
+  .sheet button.danger { color: #d9534f; }
+  .sheet .cancel { font-weight: 600; }
+  .toast { position: fixed; left: 50%; bottom: calc(var(--safe-bottom) + 92px); transform: translate(-50%, 20px); opacity: 0; z-index: 40;
+    background: rgba(30, 30, 32, .88); color: #fff; font-size: 15px; padding: 10px 16px; border-radius: 14px; transition: .25s; pointer-events: none; }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
 </style>
 </head>
 <body>
 <div class="app">
 
 <section class="view" id="v-chats">
-  <div class="top"><h1>Чаты<span class="sub" id="chats-sub">подключение…</span></h1></div>
-  <div class="banner" data-offline>Компьютер не на связи — открой VS Code, панель подключится сама.</div>
-  <div class="scroll"><div class="pad">
-    <div class="list" id="sessions"><div class="skeleton"></div><div class="skeleton"></div></div>
-  </div></div>
+  <div class="scroll" id="chats-scroll">
+    <div class="large"><h1>Чаты</h1><div class="sub" id="chats-sub">подключение…</div>
+      <label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></svg><input id="q" placeholder="Поиск" autocomplete="off"></label>
+    </div>
+    <div class="banner" data-offline>Компьютер не на связи — открой VS Code, панель подключится сама.</div>
+    <div class="pad"><div class="chats" id="sessions"><div class="skeleton"></div><div class="skeleton"></div></div>
+      <p class="note" id="chats-hint">Удерживай чат — закрепить, сменить аватарку или сделать основным.</p></div>
+  </div>
 </section>
 
 <section class="view off" id="v-status">
-  <div class="top"><h1>Статусы<span class="sub" id="status-sub"></span></h1></div>
-  <div class="banner" data-offline>Компьютер не на связи — открой VS Code, панель подключится сама.</div>
-  <div class="scroll"><div class="pad">
-    <h2>Лимиты Claude</h2>
-    <div class="usage" id="usage"><div class="empty">Загрузка…</div></div>
-    <h2>Сессии</h2>
-    <div id="status-cards"></div>
-  </div></div>
+  <div class="scroll">
+    <div class="large"><h1>Статусы</h1><div class="sub" id="status-sub"></div></div>
+    <div class="banner" data-offline>Компьютер не на связи — открой VS Code, панель подключится сама.</div>
+    <div class="pad">
+      <h2 style="margin-top:8px">Лимиты Claude</h2>
+      <div class="group usage" id="usage"><div class="empty">Загрузка…</div></div>
+      <h2>Сессии</h2>
+      <div id="status-cards"></div>
+    </div>
+  </div>
 </section>
 
 <section class="view off" id="v-settings">
-  <div class="top"><h1>Настройки</h1></div>
-  <div class="scroll"><div class="pad">
-    <h2>Оформление</h2>
-    <div class="list"><div class="opt"><div class="swatches" id="themes"></div></div></div>
-    <h2>Уведомления в чат</h2>
-    <div class="list" id="settings"></div>
-    <p class="note">Сохраняется сразу. Основная сессия присылает ответы в чат целиком — её выбирают во вкладке «Статусы» или в переписке.</p>
-  </div></div>
+  <div class="scroll">
+    <div class="large"><h1>Настройки</h1></div>
+    <div class="pad">
+      <div class="group profile" id="profile"></div>
+      <h2>Оформление</h2>
+      <div class="group">
+        <div class="swatches" id="themes"></div>
+        <div class="item"><span class="ic" style="background:#a9a2d8"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 18L9 6l5 12M5.8 14h6.4M15 18l3-7 3 7"/></svg></span><span class="name">Размер текста</span></div>
+        <div class="block" id="sizes"></div>
+      </div>
+      <h2>Уведомления в чат</h2>
+      <div class="group" id="settings"></div>
+      <p class="note">Сохраняется сразу. Основная сессия присылает ответы в чат целиком.</p>
+      <h2>Подключение</h2>
+      <div class="group" id="conn"></div>
+    </div>
+  </div>
 </section>
 
 <section class="view push" id="v-chat">
-  <div class="top small">
-    <button class="icon" data-back aria-label="Назад"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
-    <h1><span id="chat-title"></span><span class="sub" id="chat-sub"></span></h1>
+  <div class="chathead">
+    <button class="backbtn" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg>Чаты</button>
+    <div class="center"><b id="chat-title"></b><span id="chat-sub"></span></div>
+    <div class="right" id="chat-ava"></div>
   </div>
   <div class="scroll" id="chat-scroll"><div class="chat" id="chat"></div></div>
   <div class="composer">
     <div class="attachments" id="attachments"></div>
-    <div class="pill">
-      <button class="round" id="attach" aria-label="Прикрепить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2L9.8 17.5a1.8 1.8 0 0 1-2.6-2.6l8-8"/></svg></button>
-      <textarea id="input" rows="1" placeholder="Сообщение" enterkeyhint="send"></textarea>
-      <button class="round send" id="send" aria-label="Отправить" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
+    <div class="bar-row">
+      <button class="round" id="attach" aria-label="Прикрепить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.6l-8.3 8.3a5.3 5.3 0 0 1-7.5-7.5l8.3-8.3a3.6 3.6 0 0 1 5 5l-8.3 8.3a1.8 1.8 0 0 1-2.5-2.5l7.6-7.6"/></svg></button>
+      <div class="field"><textarea id="input" rows="1" placeholder="Сообщение" enterkeyhint="send"></textarea></div>
+      <button class="round send" id="send" aria-label="Отправить" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
     </div>
     <input type="file" id="file" multiple hidden>
+    <input type="file" id="ava-file" accept="image/*" hidden>
   </div>
 </section>
 
 </div>
 
 <nav class="tabbar" id="tabbar">
-  <button data-tab="chats" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 3.5V17h0A2.5 2.5 0 0 1 4 14.5z"/></svg>Чаты</button>
-  <button data-tab="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19V11M10 19V5M16 19v-6M22 19H2"/></svg>Статусы</button>
-  <button data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Настройки</button>
+  <button data-tab="chats" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 4c4.7 0 8.5 3.1 8.5 7s-3.8 7-8.5 7c-.9 0-1.8-.1-2.6-.3L5 19.5l1.2-3.4C4.6 14.8 3.5 13 3.5 11c0-3.9 3.8-7 8.5-7z"/></svg>Чаты</button>
+  <button data-tab="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 19v-6M10 19V6M15 19v-9M20 19v-4"/></svg>Статусы</button>
+  <button data-tab="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M12 2.8l1.5 2.4 2.8-.6.6 2.8 2.4 1.5-1.2 2.6 1.2 2.6-2.4 1.5-.6 2.8-2.8-.6L12 21.2l-1.5-2.4-2.8.6-.6-2.8-2.4-1.5 1.2-2.6-1.2-2.6 2.4-1.5.6-2.8 2.8.6z" stroke-linejoin="round"/></svg>Настройки</button>
 </nav>
+<div class="sheet-back" id="sheet-back"></div>
+<div class="sheet" id="sheet"></div>
 <div class="toast" id="toast"></div>
 
 <script>
   const tg = window.Telegram && Telegram.WebApp;
   const API = new URLSearchParams(location.search).get("api");
   const OPTIONS = [
-    ["mode", "Режим работы", [["telegram", "Telegram"], ["vscode", "VS Code"]]],
-    ["progress", "Основная сессия", [[false, "Только итог"], [true, "Весь ход"]]],
-    ["others", "Другие сессии", [["off", "Молчат"], ["short", "«Готово»"], ["full", "Итог"]]],
-    ["questions", "Вопросы Claude", [[true, "С кнопками"], [false, "Только VS Code"]]],
+    ["mode", "Режим работы", "#8cbf9a", [["telegram", "Telegram"], ["vscode", "VS Code"]]],
+    ["progress", "Основная сессия", "#a9a2d8", [[false, "Только итог"], [true, "Весь ход"]]],
+    ["others", "Другие сессии", "#d9b28f", [["off", "Молчат"], ["short", "«Готово»"], ["full", "Итог"]]],
+    ["questions", "Вопросы Claude", "#94b3c9", [[true, "С кнопками"], [false, "Только VS Code"]]],
   ];
-  const THEMES = [["auto", "Авто", "linear-gradient(135deg,#f2f1ef 50%,#1c1c1f 50%)"], ["light", "Светлая", "#f2f1ef"],
-                  ["dark", "Тёмная", "#1c1c1f"], ["black", "Чёрная", "#000"]];
+  const ICONS = {
+    mode: '<path d="M3 5h18v11H3zM8 20h8M12 16v4"/>', progress: '<path d="M4 6h16M4 12h10M4 18h13"/>',
+    others: '<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 19c.8-3 2.8-4.5 5-4.5s4.2 1.5 5 4.5M11 19c.8-3 2.8-4.5 5-4.5s4.2 1.5 5 4.5"/>',
+    questions: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7M12 17h.01"/>',
+  };
+  const THEMES = [["auto", "Авто", "linear-gradient(135deg,#efeff4 50%,#1c1c1e 50%)"], ["light", "Светлая", "#efeff4"],
+                  ["dark", "Тёмная", "#1c1c1e"], ["black", "Чёрная", "#000"]];
+  const SIZES = [["small", "Мелкий"], ["normal", "Обычный"], ["large", "Крупный"]];
   const STATUS = { work: "пишет…", idle: "открыта", sleep: "спит" };
   const STATUS_LONG = { work: "Claude сейчас работает", idle: "вкладка открыта, ждёт", sleep: "вкладка спит — ответ выполнится в фоне" };
   const SENT = { delivered: "доставлено", queued: "в очереди — сессия спит", headless: "выполняется в фоне",
                  busy: "сессия ещё отвечает", no_claude: "не найден Claude в VS Code" };
-  const PALETTE = ["#a9a3d1", "#9cbca5", "#d4b59e", "#c9a3b6", "#94b3c9", "#b8b38f"];
+  const PALETTE = [["#b3acdf", "#8f87c4"], ["#a5cbb0", "#7fae8c"], ["#e3c2a6", "#c9a07f"], ["#d8b0c3", "#bb8aa2"], ["#a6c2d8", "#7fa1bd"], ["#cfc9a0", "#ada67b"]];
+  const TOPICS = [[/roblox|игр|game/i, "🎮"], [/telegram|тг|бот|bot/i, "✈️"], [/stalzone|аукцион|auction/i, "☢️"],
+                  [/отч[её]т|записк|doc|report/i, "📄"], [/funpay|прода|магаз|shop/i, "🛒"], [/dota/i, "⚔️"],
+                  [/дизайн|design|ui/i, "🎨"], [/код|code|скрипт|script/i, "💻"], [/музык|music|lofi/i, "🎧"]];
   const MAX_FILE = 20 * 1024 * 1024;
-  let data = null, tab = "chats", openId = null, lastHistory = "", files = [];
+  let data = null, tab = "chats", openId = null, lastHistory = "", files = [], query = "";
   const $ = id => document.getElementById(id);
   const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
   const seen = store("seen") || {};
@@ -269,20 +370,21 @@
     if (!res.ok) throw new Error(res.status);
     return res.json();
   }
-  function online(ok) { document.querySelectorAll("[data-offline]").forEach(b => b.classList.toggle("on", !ok)); }
+  let isOnline = null;
+  function online(ok) { isOnline = ok; document.querySelectorAll("[data-offline]").forEach(b => b.classList.toggle("on", !ok)); }
   function toast(text) {
     const t = $("toast"); t.textContent = text; t.classList.add("on");
     clearTimeout(toast.timer); toast.timer = setTimeout(() => t.classList.remove("on"), 1800);
   }
-  function haptic(kind) { try { kind ? tg.HapticFeedback.notificationOccurred(kind) : tg.HapticFeedback.selectionChanged(); } catch (e) {} }
+  function haptic(kind) { try { kind === "heavy" ? tg.HapticFeedback.impactOccurred("medium") : kind ? tg.HapticFeedback.notificationOccurred(kind) : tg.HapticFeedback.selectionChanged(); } catch (e) {} }
 
-  // ---------- текст как в Telegram ----------
+  // ---------- текст ----------
   const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const codeBlock = (lang, code) => `<div class="code"><div class="code-head"><span>${esc(lang || "код")}</span><button data-copy>Копировать</button></div><pre>${esc(code)}</pre></div>`;
   function md(text) {
     const keep = [], stash = h => "\u0000" + (keep.push(h) - 1) + "\u0000";
     text = text.replace(/^\[(?:Панель|Telegram): получен(?:о)? (фото|файл) ([^\]]*?)(?:, сохранено в [^\]]*)?\]\s*$/gm,
-      (_, kind, name) => stash(`<div class="file">${kind === "фото" ? "🖼" : "📄"} ${esc(name.replace(/^\d{10,}_/, ""))}</div>`));
+      (_, kind, name) => stash(`<div class="file"><i>${kind === "фото" ? "🖼" : "📄"}</i>${esc(name.replace(/^\d{10,}_/, ""))}</div>`));
     text = text.replace(/```([\w+#.-]*)[^\n]*\n?([\s\S]*?)(```|$)/g, (_, lang, c) => stash(codeBlock(lang, c.replace(/\n$/, ""))));
     text = text.replace(/((?:^|\n)\|.*(?:\n\|.*)*)/g, t => {
       const rows = t.trim().split("\n").filter(l => !/^\|?[\s:|-]+\|?$/.test(l))
@@ -306,8 +408,10 @@
   }
   const hhmm = d => d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
   function when(ts) {
-    const d = new Date(ts * 1000);
-    return d.toDateString() === new Date().toDateString() ? hhmm(d) : d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+    const d = new Date(ts * 1000), now = new Date(), days = (now - d) / 864e5;
+    if (d.toDateString() === now.toDateString()) return hhmm(d);
+    if (days < 6) return d.toLocaleDateString("ru-RU", { weekday: "short" });
+    return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" });
   }
   function dayLabel(d) {
     const now = new Date(), y = new Date(now - 864e5);
@@ -321,14 +425,16 @@
     if (m < 1440) return `сброс через ${Math.floor(m / 60)} ч ${m % 60} мин`;
     return "сброс " + new Date(iso).toLocaleDateString("ru-RU", { weekday: "short", hour: "2-digit", minute: "2-digit" });
   }
-  function avatar(s) {
-    let h = 0; for (const c of s.t) h = (h * 31 + c.codePointAt(0)) >>> 0;
-    const letter = (s.t.match(/[\p{L}\p{N}]/u) || ["#"])[0].toUpperCase();
-    return `<div class="ava" style="background:${PALETTE[h % PALETTE.length]}">${esc(letter)}<i class="dot ${esc(s.st)}"></i></div>`;
-  }
   function plural(n, one, few, many) {
     const n10 = n % 10, n100 = n % 100;
     return n10 === 1 && n100 !== 11 ? one : n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14) ? few : many;
+  }
+  function colors(title) { let h = 0; for (const c of title) h = (h * 31 + c.codePointAt(0)) >>> 0; return PALETTE[h % PALETTE.length]; }
+  function avatar(s, dot) {
+    const [a, b] = colors(s.t);
+    const inner = s.ava ? "" : esc((s.t.match(/[\p{L}\p{N}]/u) || ["#"])[0].toUpperCase());
+    const bg = s.ava ? `background-image:url('${s.ava}')` : `background:linear-gradient(180deg,${a},${b})`;
+    return `<div class="ava-wrap"><div class="ava" style="${bg}">${inner}</div>${dot ? `<i class="dot ${esc(s.st)}"></i>` : ""}</div>`;
   }
 
   // ---------- навигация ----------
@@ -338,23 +444,25 @@
     document.querySelectorAll(".tabbar button").forEach(b => b.classList.toggle("on", b.dataset.tab === name));
     render();
   }
+  const canBack = () => tg && tg.isVersionAtLeast && tg.isVersionAtLeast("6.1");
   function openChat(id) {
     openId = id; lastHistory = "";
     $("chat").innerHTML = '<div class="empty">Загрузка…</div>';
     $("v-chat").classList.remove("push"); $("v-" + tab).classList.add("under");
     $("tabbar").classList.add("hide");
-    if (tg && tg.isVersionAtLeast && tg.isVersionAtLeast("6.1")) tg.BackButton.show();
+    if (canBack()) tg.BackButton.show();
     renderChatHeader(); loadHistory(true);
   }
   function closeChat() {
     $("input").blur(); openId = null;
     $("v-chat").classList.add("push"); $("v-" + tab).classList.remove("under");
     $("tabbar").classList.remove("hide");
-    if (tg && tg.isVersionAtLeast && tg.isVersionAtLeast("6.1")) tg.BackButton.hide();
+    if (canBack()) tg.BackButton.hide();
     render();
   }
   function back() {
-    if (document.activeElement === $("input")) { $("input").blur(); return; }  // сначала закрываем клавиатуру
+    if ($("sheet").classList.contains("on")) return closeSheet();
+    if (document.activeElement === $("input")) return $("input").blur();
     if (openId) closeChat();
   }
 
@@ -365,19 +473,26 @@
     if (tab === "status") renderStatus();
     if (tab === "settings") renderSettings();
   }
+  const sessionById = id => data && data.sessions.find(x => x.id === id);
 
   function renderChats() {
     const n = data.sessions.length;
     $("chats-sub").textContent = data.settings.mode === "vscode" ? "режим VS Code · уведомления выключены"
       : `${n} ${plural(n, "сессия открыта", "сессии открыты", "сессий открыто")}`;
+    const q = query.trim().toLowerCase();
+    const list = data.sessions.filter(s => !q || s.t.toLowerCase().includes(q) || (s.last || "").toLowerCase().includes(q));
     const box = $("sessions");
-    if (!n) { box.innerHTML = '<div class="empty">Нет открытых вкладок Claude в VS Code</div>'; return; }
-    box.innerHTML = data.sessions.map(s => {
+    if (!list.length) { box.innerHTML = `<div class="empty">${q ? "Ничего не найдено" : "Нет открытых вкладок Claude в VS Code"}</div>`; return; }
+    box.innerHTML = list.map(s => {
       const fresh = s.at && seen[s.id] !== undefined && s.at > seen[s.id] && s.st !== "work";
-      return `<div class="row tap" data-open="${esc(s.id)}">${avatar(s)}
-        <div class="grow"><div class="line1"><b>${esc(s.t)}</b><time>${s.at ? when(s.at) : ""}</time></div>
-        <div class="line2"><span>${s.st === "work" ? STATUS.work : esc(s.last || STATUS[s.st])}</span>
-        ${s.id === data.selected ? '<span class="chip">основная</span>' : ""}${fresh ? '<span class="badge"></span>' : ""}</div></div></div>`;
+      const preview = s.st === "work" ? "<em>пишет…</em>" : esc(s.last || STATUS[s.st]);
+      return `<div class="crow" data-open="${esc(s.id)}">${avatar(s, true)}
+        <div class="body"><div class="l1"><b>${esc(s.t)}</b><time>${s.at ? when(s.at) : ""}</time></div>
+        <div class="l2"><div class="prev">${preview}</div><div class="marks">
+          ${fresh ? '<span class="badge"></span>' : ""}
+          ${s.id === data.selected ? '<svg class="main-mark" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.2 1.3-6.6L2.5 9.3l6.6-.8z"/></svg>' : ""}
+          ${s.pin ? '<svg class="pin" viewBox="0 0 24 24" fill="currentColor"><path d="M15 3l6 6-3 1-4 4 .5 4.5-1.5 1.5-4-4-5 5-1-1 5-5-4-4L5.5 9.5 10 10l4-4z"/></svg>' : ""}
+        </div></div></div></div>`;
     }).join("");
   }
 
@@ -393,30 +508,41 @@
     const working = data.sessions.filter(s => s.st === "work").length;
     $("status-sub").textContent = working ? `${working} ${plural(working, "сессия работает", "сессии работают", "сессий работают")}` : "все сессии ждут";
     $("status-cards").innerHTML = data.sessions.map(s => `
-      <div class="scard"><div class="line1">${avatar(s)}<div class="grow" style="margin-left:4px">
-        <div class="line1"><b>${esc(s.t)}</b><time>${s.at ? when(s.at) : ""}</time></div>
-        <span class="state"><i class="dot ${esc(s.st)}"></i>${STATUS_LONG[s.st]}</span></div></div>
+      <div class="scard"><div class="top-line">${avatar(s, false)}<div style="flex:1;min-width:0"><b>${esc(s.t)}</b>
+        <span class="state"><i class="dot ${esc(s.st)}"></i>${STATUS_LONG[s.st]}${s.at ? " · " + when(s.at) : ""}</span></div></div>
         ${s.last ? `<div class="last">${esc(s.last)}</div>` : ""}
         <div class="actions"><button data-open="${esc(s.id)}">Открыть</button>
-        ${s.id === data.selected ? '<button disabled style="opacity:.6">Основная ✓</button>' : `<button data-main="${esc(s.id)}">Сделать основной</button>`}</div></div>`).join("")
+        ${s.id === data.selected ? '<button disabled style="opacity:.55">Основная ✓</button>' : `<button data-main="${esc(s.id)}">Сделать основной</button>`}</div></div>`).join("")
       || '<div class="empty">Нет открытых вкладок Claude в VS Code</div>';
   }
 
   function renderSettings() {
-    const theme = store("theme") || "auto";
+    const n = data.sessions.length, u = data.usage;
+    $("profile").innerHTML = `<div class="ava" style="background:linear-gradient(160deg,#b9b3e6,#8a83c4)">✳︎</div>
+      <b>Claude Code</b><span>${isOnline ? "компьютер на связи" : "нет связи с компьютером"} · ${n} ${plural(n, "сессия", "сессии", "сессий")}</span>`;
+    const theme = store("theme") || "auto", size = store("size") || "normal";
     $("themes").innerHTML = THEMES.map(([k, t, bg]) => `<button class="swatch ${k === theme ? "on" : ""}" data-theme-pick="${k}"><i style="background:${bg}"></i>${t}</button>`).join("");
-    const cfg = data ? data.settings : {};
-    $("settings").innerHTML = OPTIONS.map(([key, title, vals]) => `
-      <div class="opt"><label>${title}</label><div class="seg">
-        ${vals.map(([v, t], i) => `<button data-k="${key}" data-i="${i}" class="${cfg[key] === v ? "on" : ""}">${t}</button>`).join("")}
-      </div></div>`).join("");
+    $("sizes").innerHTML = `<div class="seg">${SIZES.map(([k, t]) => `<button class="${k === size ? "on" : ""}" data-size-pick="${k}">${t}</button>`).join("")}</div>`;
+    const cfg = data.settings;
+    $("settings").innerHTML = OPTIONS.map(([key, title, color, vals]) => `
+      <div class="item"><span class="ic" style="background:${color}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]}</svg></span><span class="name">${title}</span></div>
+      <div class="block"><div class="seg">${vals.map(([v, t], i) => `<button data-k="${key}" data-i="${i}" class="${cfg[key] === v ? "on" : ""}">${t}</button>`).join("")}</div></div>`).join("");
+    const mins = data.tunnel_since ? Math.max(1, Math.round((Date.now() / 1000 - data.tunnel_since) / 60)) : null;
+    const row = (color, icon, name, val) => `<div class="item"><span class="ic" style="background:${color}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon}</svg></span><span class="name">${name}</span><span class="val">${val}</span></div>`;
+    $("conn").innerHTML =
+      row("#8cbf9a", '<path d="M3 5h18v11H3zM8 20h8M12 16v4"/>', "Компьютер", isOnline ? "на связи" : "нет связи") +
+      row("#94b3c9", '<path d="M4 12a8 8 0 0 1 16 0M7.5 12a4.5 4.5 0 0 1 9 0"/><circle cx="12" cy="12" r="1"/>', "Туннель", mins ? (mins < 60 ? `${mins} мин` : `${Math.floor(mins / 60)} ч`) : "—") +
+      row("#d9b28f", '<path d="M5 19v-6M10 19V6M15 19v-9M20 19v-4"/>', "Лимит 5 ч", u && u.five_hour ? Math.round(u.five_hour.pct) + "%" : "—") +
+      row("#a9a2d8", '<path d="M12 8v4l2.5 2.5"/><circle cx="12" cy="12" r="8.5"/>', "Неделя", u && u.seven_day ? Math.round(u.seven_day.pct) + "%" : "—");
   }
 
   function renderChatHeader() {
-    const s = data && data.sessions.find(x => x.id === openId);
+    const s = sessionById(openId);
     if (!s) return;
     $("chat-title").textContent = s.t;
-    $("chat-sub").textContent = `${STATUS[s.st] || ""}${s.id === data.selected ? " · основная" : ""}`;
+    $("chat-sub").textContent = (s.st === "work" ? "пишет…" : STATUS[s.st]) + (s.id === data.selected ? " · основная" : "");
+    $("chat-sub").className = s.st === "work" ? "work" : "";
+    $("chat-ava").innerHTML = avatar(s, false).replace('class="ava"', 'class="ava" data-menu="' + esc(s.id) + '"');
     if (s.at) { seen[s.id] = s.at; store("seen", seen); }
   }
 
@@ -429,13 +555,17 @@
       if (key === lastHistory) return;
       lastHistory = key;
       const sc = $("chat-scroll"), atBottom = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 120;
-      let lastDay = "";
-      $("chat").innerHTML = res.items.length ? res.items.map(m => {
+      const items = res.items;
+      let lastDay = "", html = "";
+      items.forEach((m, i) => {
         const d = m.ts ? new Date(m.ts) : null, day = d ? d.toDateString() : "";
-        const sep = day && day !== lastDay ? `<div class="day">${dayLabel(d)}</div>` : "";
-        lastDay = day || lastDay;
-        return `${sep}<div class="msg ${m.r}">${md(m.x)}<span class="time">${d ? hhmm(d) : ""}</span></div>`;
-      }).join("") : '<div class="empty">Переписки пока нет</div>';
+        if (day && day !== lastDay) { html += `<div class="day">${dayLabel(d)}</div>`; lastDay = day; }
+        const prev = items[i - 1], next = items[i + 1], dir = m.r === "user" ? "out" : "in";
+        const samePrev = prev && prev.r === m.r, sameNext = next && next.r === m.r;
+        const cls = [dir, samePrev ? "cont" : "gap", sameNext ? "mid" : "tail"].join(" ");
+        html += `<div class="msg ${cls}">${md(m.x)}<span class="time">${d ? hhmm(d) : ""}</span></div>`;
+      });
+      $("chat").innerHTML = html || '<div class="empty">Переписки пока нет</div>';
       if (scroll || atBottom) sc.scrollTop = sc.scrollHeight;
     } catch (e) { online(false); }
   }
@@ -467,48 +597,113 @@
         const f = batch[i], caption = i === batch.length - 1 ? text : "";
         const res = await api("/api/upload", { id: openId, name: f.file.name, mime: f.file.type, data: await readB64(f.file), caption });
         status = res.status;
-        bubble += f.url ? `<img class="thumb" src="${f.url}" alt="">` : `<div class="file">📄 ${esc(f.file.name)}</div>`;
+        bubble += f.url ? `<img class="thumb" src="${f.url}" alt="">` : `<div class="file"><i>📄</i>${esc(f.file.name)}</div>`;
       }
       if (!batch.length) status = (await api("/api/send", { id: openId, text })).status;
       input.value = ""; files = []; autosize(); renderAttachments();
-      $("chat").insertAdjacentHTML("beforeend", `<div class="msg user">${bubble}${text ? md(text) : ""}<span class="time">${hhmm(new Date())}</span></div><div class="pending">${SENT[status] || status}</div>`);
+      $("chat").insertAdjacentHTML("beforeend", `<div class="msg out gap tail">${bubble}${text ? md(text) : ""}<span class="time">${hhmm(new Date())}</span></div><div class="pending">${SENT[status] || status}</div>`);
       $("chat-scroll").scrollTop = $("chat-scroll").scrollHeight;
       haptic("success");
     } catch (e) { online(false); toast(String(e.message) === "413" ? "Файл слишком большой" : "Не отправлено — нет связи"); haptic("error"); }
     syncSend();
   }
 
+  // ---------- меню чата (долгое нажатие) ----------
+  function openSheet(id) {
+    const s = sessionById(id);
+    if (!s) return;
+    haptic("heavy");
+    $("sheet").innerHTML = `<div class="grp"><div class="title">${esc(s.t)}</div>
+      <button data-act="pin" data-id="${esc(id)}">${s.pin ? "Открепить" : "Закрепить"}</button>
+      ${s.id === data.selected ? "" : `<button data-act="main" data-id="${esc(id)}">Сделать основной</button>`}
+      <button data-act="ava-photo" data-id="${esc(id)}">Аватарка из фото</button>
+      <button data-act="ava-auto" data-id="${esc(id)}">Аватарка по теме чата</button>
+      ${s.ava ? `<button class="danger" data-act="ava-clear" data-id="${esc(id)}">Убрать аватарку</button>` : ""}</div>
+      <div class="grp"><button class="cancel" data-act="cancel">Отмена</button></div>`;
+    $("sheet").classList.add("on"); $("sheet-back").classList.add("on");
+  }
+  function closeSheet() { $("sheet").classList.remove("on"); $("sheet-back").classList.remove("on"); }
+
+  function canvasAvatar(draw) {
+    const c = document.createElement("canvas"); c.width = c.height = 160;
+    draw(c.getContext("2d")); return c.toDataURL("image/jpeg", .88);
+  }
+  function autoAvatar(s) {
+    const [a, b] = colors(s.t), emoji = (TOPICS.find(([re]) => re.test(s.t)) || [null, "✳️"])[1];
+    return canvasAvatar(x => {
+      const g = x.createLinearGradient(0, 0, 0, 160); g.addColorStop(0, a); g.addColorStop(1, b);
+      x.fillStyle = g; x.fillRect(0, 0, 160, 160);
+      x.font = "76px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif"; x.textAlign = "center"; x.textBaseline = "middle";
+      x.fillText(emoji, 80, 86);
+    });
+  }
+  const photoAvatar = file => new Promise((ok, fail) => {
+    const img = new Image(); img.onerror = fail;
+    img.onload = () => ok(canvasAvatar(x => {
+      const k = Math.min(img.width, img.height);
+      x.drawImage(img, (img.width - k) / 2, (img.height - k) / 2, k, k, 0, 0, 160, 160);
+    }));
+    img.src = URL.createObjectURL(file);
+  });
+  let avaTarget = null;
+  async function saveAvatar(id, dataUrl) {
+    try { data = await api("/api/avatar", { id, data: dataUrl }); render(); if (openId) renderChatHeader(); toast(dataUrl ? "Аватарка обновлена" : "Аватарка убрана"); }
+    catch (e) { toast("Не сохранилось — нет связи"); }
+  }
+  async function act(name, id) {
+    closeSheet();
+    const s = sessionById(id);
+    if (name === "pin") { try { data = await api("/api/pin", { id, pinned: !s.pin }); render(); toast(s.pin ? "Откреплено" : "Закреплено"); } catch (e) { toast("Нет связи"); } }
+    if (name === "main") { try { data = await api("/api/select", { id }); render(); if (openId) renderChatHeader(); toast("Теперь это основная сессия"); } catch (e) { toast("Нет связи"); } }
+    if (name === "ava-photo") { avaTarget = id; $("ava-file").click(); }
+    if (name === "ava-auto") saveAvatar(id, autoAvatar(s));
+    if (name === "ava-clear") saveAvatar(id, null);
+  }
+
   async function refresh() {
-    try { data = await api("/api/state"); online(true); } catch (e) { online(false); return; }
+    try { data = await api("/api/state"); online(true); } catch (e) { online(false); if (data) render(); return; }
     if (openId) renderChatHeader(); else render();
   }
-  function autosize() { const t = $("input"); t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 150) + "px"; }
+  function autosize() { const t = $("input"); t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 130) + "px"; }
 
   // ---------- оформление ----------
   function applyTheme() {
     const pick = store("theme") || "auto";
     const auto = tg && tg.colorScheme ? tg.colorScheme : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     document.documentElement.dataset.theme = pick === "auto" ? auto : pick;
+    document.documentElement.dataset.size = store("size") || "normal";
     const bg = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
     if (tg) try { tg.setHeaderColor(bg); tg.setBackgroundColor(bg); tg.setBottomBarColor && tg.setBottomBarColor(bg); } catch (e) {}
   }
 
   // ---------- события ----------
+  let holdTimer = null, held = false;
+  function holdStart(e) {
+    const row = e.target.closest("[data-open], [data-menu]");
+    if (!row || !row.closest("#sessions, #chat-ava")) return;
+    held = false;
+    holdTimer = setTimeout(() => { held = true; row.classList.add("hold"); openSheet(row.dataset.open || row.dataset.menu);
+      setTimeout(() => row.classList.remove("hold"), 300); }, 480);
+  }
+  const holdEnd = () => clearTimeout(holdTimer);
+  document.addEventListener("touchstart", holdStart, { passive: true });
+  document.addEventListener("touchend", holdEnd); document.addEventListener("touchmove", holdEnd, { passive: true });
+  document.addEventListener("contextmenu", e => { const row = e.target.closest("#sessions [data-open], #chat-ava [data-menu]");
+    if (row) { e.preventDefault(); openSheet(row.dataset.open || row.dataset.menu); } });
+
   document.addEventListener("click", async e => {
     const t = e.target;
+    if (held) { held = false; return; }  // долгое нажатие - не открывать чат
     const tabBtn = t.closest("[data-tab]"); if (tabBtn) { haptic(); setTab(tabBtn.dataset.tab); return; }
+    const menu = t.closest("[data-menu]"); if (menu) { openSheet(menu.dataset.menu); return; }
+    const a = t.closest("[data-act]"); if (a) { haptic(); a.dataset.act === "cancel" ? closeSheet() : act(a.dataset.act, a.dataset.id); return; }
     const open = t.closest("[data-open]"); if (open) { haptic(); openChat(open.dataset.open); return; }
-    const main = t.closest("[data-main]");
-    if (main) {
-      haptic();
-      try { data = await api("/api/select", { id: main.dataset.main }); render(); toast("Теперь это основная сессия"); } catch (er) { online(false); }
-      return;
-    }
-    const th = t.closest("[data-theme-pick]");
-    if (th) { haptic(); store("theme", th.dataset.themePick); applyTheme(); renderSettings(); return; }
+    const main = t.closest("[data-main]"); if (main) { haptic(); act("main", main.dataset.main); return; }
+    const th = t.closest("[data-theme-pick]"); if (th) { haptic(); store("theme", th.dataset.themePick); applyTheme(); renderSettings(); return; }
+    const sz = t.closest("[data-size-pick]"); if (sz) { haptic(); store("size", sz.dataset.sizePick); applyTheme(); renderSettings(); return; }
     const opt = t.closest("[data-k]");
     if (opt && data) {
-      const key = opt.dataset.k, before = data.settings[key], value = OPTIONS.find(o => o[0] === key)[2][+opt.dataset.i][0];
+      const key = opt.dataset.k, before = data.settings[key], value = OPTIONS.find(o => o[0] === key)[3][+opt.dataset.i][0];
       if (value === before) return;
       haptic(); data.settings[key] = value; renderSettings();  // сразу, не дожидаясь туннеля
       try { data = await api("/api/settings", { settings: { [key]: value } }); online(true); }
@@ -520,20 +715,29 @@
     if (copy) {
       const pre = copy.closest(".code").querySelector("pre");
       (navigator.clipboard ? navigator.clipboard.writeText(pre.innerText) : Promise.reject()).then(
-        () => { toast("Код скопирован"); haptic("success"); },
+        () => { toast("Скопировано"); haptic("success"); },
         () => { const r = document.createRange(); r.selectNodeContents(pre); getSelection().removeAllRanges(); getSelection().addRange(r); toast("Выделено — скопируй"); });
     }
   });
+  $("sheet-back").onclick = closeSheet;
   document.querySelectorAll("[data-back]").forEach(b => b.onclick = back);
+  $("q").oninput = e => { query = e.target.value; renderChats(); };
   $("attach").onclick = () => { haptic(); $("file").click(); };
   $("file").onchange = e => { addFiles(e.target.files); e.target.value = ""; };
+  $("ava-file").onchange = async e => {
+    const f = e.target.files[0]; e.target.value = "";
+    if (f && avaTarget) try { saveAvatar(avaTarget, await photoAvatar(f)); } catch (er) { toast("Не удалось прочитать фото"); }
+  };
   $("input").oninput = () => { autosize(); syncSend(); };
+  $("input").onfocus = () => document.body.classList.add("kb");
+  $("input").onblur = () => document.body.classList.remove("kb");
   $("input").onkeydown = e => { if (e.key === "Enter" && !e.shiftKey && (e.ctrlKey || e.metaKey || !matchMedia("(pointer: coarse)").matches)) { e.preventDefault(); sendMessage(); } };
   $("input").addEventListener("paste", e => { const f = [...(e.clipboardData || {}).files || []]; if (f.length) { e.preventDefault(); addFiles(f); } });
   $("send").onclick = sendMessage;
   // клавиатура закрывается тапом по переписке или прокруткой
   $("chat-scroll").addEventListener("touchstart", () => $("input").blur(), { passive: true });
   $("chat-scroll").addEventListener("mousedown", () => $("input").blur());
+  ["chats-scroll"].forEach(id => $(id).addEventListener("touchstart", e => { if (!e.target.closest("#q")) $("q").blur(); }, { passive: true }));
   // зум выключен: щипок и жесты iOS
   ["gesturestart", "gesturechange"].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
   document.addEventListener("touchmove", e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
