@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Claude Code</title>
+<link rel="icon" href="data:,">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
   :root {
@@ -47,6 +48,8 @@
     padding: 7px 4px; border-radius: 8px; cursor: pointer; transition: background .15s, color .15s; }
   .seg button.on { background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.08); font-weight: 500; }
   .note { font-size: 12px; color: var(--muted); margin: 10px 4px 0; }
+  .legend .dot { display: inline-block; width: 7px; height: 7px; margin: 0 4px 1px 6px; animation: none; }
+  .legend .dot:first-child { margin-left: 0; }
   .save { position: fixed; left: 16px; right: 16px; bottom: 16px; max-width: 488px; margin: 0 auto; display: none;
     border: 0; border-radius: 12px; padding: 13px; font: inherit; font-weight: 600; cursor: pointer;
     background: var(--accent); color: #fff; }
@@ -60,7 +63,7 @@
 
   <h2>Сессии</h2>
   <div class="list" id="sessions"></div>
-  <p class="note">● пишет · ● открыта · ● спит — нажми, чтобы переключиться</p>
+  <p class="note legend"><i class="dot work"></i>пишет <i class="dot idle"></i>открыта <i class="dot"></i>спит — нажми сессию, чтобы переключиться</p>
 
   <h2>Уведомления</h2>
   <div class="list" id="settings"></div>
